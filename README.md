@@ -75,19 +75,20 @@ exports.handler = new Middleware({
 
 | Param | Type | Description |
 | --- | --- | --- |
-| clusterOption | *Object* | callback 시 적용되는 data |
+| clusterOption | *Object* | middleware options |
 
 ### add(handler) : *{Middleware}*
-> Flow handler 추가
+> Flow handler & ProType rules 추가
 
 | Param | Type | Description |
 | --- | --- | --- |
 | handler | *Function* | @param *{Object}* `event`	Lambda event (converted data type)<br>@param *{Object}* `context`	Lambda context<br>@param *{Object}* `prevData`	Previous handler return data|
+| handler | *Object* | PropTypes rules |
 
 ```js
 exports.handler = new Middleware().add(async (event, context, prevData) => {
 	if (event.source === 'serverless-plugin-warmup') {
-		//Promise.reject() 을 리턴하면 next handler 를 실행하지 않고 Lambda handler callback
+		//Promise.reject() 을 리턴하면 next handler 를 실행하지 않고 Lambda handler callback(null, rejectValue)
 		return Promise.reject('Lambda is warm!')
 	}
 }).add({
@@ -119,9 +120,9 @@ Parameter PropTypes validater
 | Type | Description |
 | --- | --- |
 | string | String |
-| number | Number & Numberic string |
-| integer | Integer & Integeric string |
-| bool | Boolean & Boolean string |
+| number | Number or Numberic string |
+| integer | Integer or Integeric string |
+| bool | Boolean or Boolean string |
 | array | Array, isRequired = array.length > 0 |
 
 ```js
@@ -160,7 +161,7 @@ PropTypes.addRules({
 			validRequired: (value) => {
 				return value.length > 0
 			},
-			//Paramers 의 value가 String 으로 잘못 변환되어 들어 오는 경우 변환시키는 function (필요시에는 적용한다.)
+			//Paramers 의 value가 String 으로 잘못 변환되어 들어 오는 경우 변환시키는 function (필요시에만 적용한다.)
 			convert: (value) => {
 				return String(value)
 			}
