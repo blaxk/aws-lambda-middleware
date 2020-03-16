@@ -1,0 +1,13 @@
+{
+	"extends": [
+		"eslint:recommended",
+		"plugin:node/recommended"
+	],
+	"rules": {
+		"node/no-missing-require": "off",
+		"node/no-extraneous-require": "off",
+		"no-unused-vars": "off",
+		"no-useless-escape": "off",
+		"no-prototype-builtins": "off"
+	}
+}

@@ -1,0 +1,31 @@
+{
+	"name": "aws-lambda-middleware",
+	"version": "0.5.0",
+	"engines": {
+		"node": ">=8.3.0"
+	},
+	"description": "AWS Lambda Middleware",
+	"main": "index.js",
+	"dependencies": {},
+	"devDependencies": {
+		"eslint-plugin-node": "^11.0.0",
+		"eslint-plugin-import": "^2.20.1"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/blaxk/aws-lambda-middleware.git"
+	},
+	"keywords": [
+		"aws",
+		"lambda",
+		"middleware"
+	],
+	"author": "blaxk",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/blaxk/aws-lambda-middleware/issues"
+	}
+}
