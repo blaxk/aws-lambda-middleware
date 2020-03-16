@@ -108,6 +108,46 @@ exports.handler = new Middleware().add(async (event, context, prevData) => {
 })
 ```
 
+
+#### Example
+
+```js
+exports.handler = new Middleware().add({
+	queryStringParameters: {
+		age: PropTypes.integer.isRequired
+	},
+	pathParameters: {
+		groupId: PropTypes.integer.isRequired
+	}
+}).add(async (event, context, prevData) => {
+	const query = event.queryStringParameters
+
+	if (query.age > 20) {
+		return {
+			myName: 'jone'
+		}
+	} else {
+		return Promise.reject({
+			statusCode: 404,
+			body: JSON.stringify({
+				message: 'not found'
+			})
+		})
+	}
+}).add(async (event, context, prevData) => {
+	const pathParam = event.pathParameters
+
+	console.log(prevData.myName) // 'jone'
+
+	return {
+		statusCode: 200,
+		body: JSON.stringify({
+			message: 'success'
+		})
+	}
+})
+```
+
 &nbsp;
 
 ## PropTypes
