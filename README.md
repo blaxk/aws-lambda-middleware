@@ -85,6 +85,7 @@ exports.handler = new Middleware({
 | handler | *Function* | @param *{Object}* `event`	Lambda event (converted data type)<br>@param *{Object}* `context`	Lambda context<br>@param *{Object}* `prevData`	Previous handler return data|
 | handler | *Object* | PropTypes rules |
 
+
 ```js
 exports.handler = new Middleware().add(async (event, context, prevData) => {
 	if (event.source === 'serverless-plugin-warmup') {
@@ -164,6 +165,7 @@ Parameter PropTypes validater
 | bool | Boolean or Boolean string |
 | array | Array, isRequired = array.length > 0 |
 
+
 ```js
 exports.handler = new Middleware().add({
 	//Validate child property of Lambda event (queryStringParameters, body, pathParameters ...)
@@ -184,6 +186,7 @@ exports.handler = new Middleware().add({
 | Param | Type | Description |
 | --- | --- | --- |
 | rules | *Object* | - |
+
 
 ```js
 const { Middleware, PropTypes } = require('aws-lambda-middleware')

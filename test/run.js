@@ -86,7 +86,7 @@ const handler3 = new Middleware().add(async (event, context, prevData) => {
 
 /** ========== Run Handler ========== */
 
-handler3({
+handler1({
 	"resource": "/users/create",
 	"source": "serverless-plugin-warmup",
 	"path": "/users/create",

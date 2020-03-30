@@ -90,9 +90,9 @@ class Middleware {
 	}
 
 	async _validPropTypes (event, propGroup) {
-		let errorMsg = ''
+		let errorMsg = event._isMiddlewareBodyParseError || ''
 
-		if (common.isObject(propGroup)) {
+		if (!errorMsg && common.isObject(propGroup)) {
 			for (const groupKey in propGroup) {
 				const propTypeRules = propGroup[groupKey]
 
@@ -100,7 +100,11 @@ class Middleware {
 					const rule = propTypeRules[propName]
 					const val = common.isObject(event[groupKey]) ? event[groupKey][propName] : undefined
 					
-					errorMsg = rule._invalid(propName, val)
+					if (rule && typeof rule._invalid === 'function') {
+						errorMsg = rule._invalid(propName, val)
+					} else {
+						errorMsg = 'You have set propTypes that are not supported.'
+					}
 
 					if (errorMsg) {
 						break
@@ -129,8 +133,15 @@ class Middleware {
 	_parseEvent (event = {}) {
 		if (event.httpMethod) {
 			if (event.body) {
-				if (typeof event.body === 'string' && /^\{.*\}$/.test(event.body)) {
-					event.body = JSON.parse(event.body)
+				if (typeof event.body === 'string') {
+					//body parse
+					try {
+						event.body = JSON.parse(event.body)
+					} catch (err) {
+						event._isMiddlewareBodyParseError = 'Request event.body parse error!'
+						console.error(event._isMiddlewareBodyParseError)
+						console.error(err)
+					}
 				}
 			} else {
 				event.body = {}
