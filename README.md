@@ -56,7 +56,7 @@ Middleware.globalOption({
 ```
 
 **bodyParser:** *{Function}*	Common event.body parser   
-Currently, event.body parser supports `Content-Type` : `application/json`, `application\/x-www-form-urlencoded`.   
+Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.   
 If you want to use another type of body parser, you can apply it at this point.
 
 ```js
