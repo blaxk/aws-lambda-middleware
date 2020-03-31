@@ -1,3 +1,4 @@
+const querystring = require('querystring')
 const common = require('./common')
 
 let globalOptions = {}
@@ -10,14 +11,24 @@ class Middleware {
 	 * @param {Object} options
 	 */
 	static globalOption (options = {}) {
-		globalOptions = options
+		if (common.isObject(options)) {
+			globalOptions = options
+		} else {
+			console.log('The globalOptions type is available only for objects.')
+		}
 	}
 
 	/**
-	 * @param {Object} options	closer options
+	 * @param {Object} options	cluster options
 	 */
 	constructor (options = {}) {
-		this._options = options
+		if (common.isObject(options)) {
+			this._options = options
+		} else {
+			this._options = {}
+			console.log('The clusterOptions type is available only for objects.')
+		}
+		
 		this._flows = []
 		this._handler = this._handler.bind(this)
 		this._handler.add = this.add.bind(this)
@@ -90,7 +101,7 @@ class Middleware {
 	}
 
 	async _validPropTypes (event, propGroup) {
-		let errorMsg = event._isMiddlewareBodyParseError || ''
+		let errorMsg = event.middlewareBodyParseError || ''
 
 		if (!errorMsg && common.isObject(propGroup)) {
 			for (const groupKey in propGroup) {
@@ -110,7 +121,7 @@ class Middleware {
 						break
 					} else {
 						//value convert
-						if (common.isObject(event[groupKey]) && typeof rule._convert === 'function') {
+						if (common.isObject(event[groupKey]) && event[groupKey].hasOwnProperty(propName) && typeof rule._convert === 'function') {
 							event[groupKey][propName] = rule._convert(val)
 						}
 					}
@@ -132,19 +143,31 @@ class Middleware {
 
 	_parseEvent (event = {}) {
 		if (event.httpMethod) {
-			if (event.body) {
-				if (typeof event.body === 'string') {
-					//body parse
-					try {
-						event.body = JSON.parse(event.body)
-					} catch (err) {
-						event._isMiddlewareBodyParseError = 'Request event.body parse error!'
-						console.error(event._isMiddlewareBodyParseError)
-						console.error(err)
+			try {
+				if (typeof this._options.bodyParser === 'function') {
+					this._options.bodyParser(event)
+				} else if (typeof globalOptions.bodyParser === 'function') {
+					globalOptions.bodyParser(event)
+				} else {
+					if (event.body) {
+						const contentType = common.getHeader(event, 'Content-Type')
+
+						if (typeof event.body === 'string') {
+							if (/application\/json/i.test(contentType)) {
+								event.body = JSON.parse(event.body)
+							} else if (/application\/x-www-form-urlencoded/i.test(contentType)) {
+								event.body = {
+									...querystring.parse(event.body)
+								}
+							}
+						}
+					} else {
+						event.body = {}
 					}
 				}
-			} else {
-				event.body = {}
+			} catch (error) {
+				event.middlewareBodyParseError = 'Request event.body parse error!'
+				console.error(error)
 			}
 
 			if (!event.queryStringParameters) {

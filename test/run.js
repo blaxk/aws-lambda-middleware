@@ -93,7 +93,8 @@ handler1({
 	"httpMethod": "GET",
 	"headers": {
 		"User-Agent": "PostmanRuntime/7.6.0",
-		"X-Forwarded-For": "175.211.38.132"
+		"X-Forwarded-For": "175.211.38.132",
+		"Content-Type": "application/json",
 	},
 	"queryStringParameters": {
 		"username": "test"

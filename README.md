@@ -55,6 +55,20 @@ Middleware.globalOption({
 })
 ```
 
+**bodyParser:** *{Function}*	Common event.body parser   
+Currently, event.body parser supports `Content-Type` : `application/json`, `application\/x-www-form-urlencoded`.   
+If you want to use another type of body parser, you can apply it at this point.
+
+```js
+const { Middleware, PropTypes } = require('aws-lambda-middleware')
+
+Middleware.globalOption({
+	bodyParser: (event = {}) => {
+		//code
+	}
+})
+```
+
 Cluster option can be applied to each middleware.
 ```js
 const { Middleware, PropTypes } = require('aws-lambda-middleware')
@@ -62,6 +76,9 @@ const { Middleware, PropTypes } = require('aws-lambda-middleware')
 exports.handler = new Middleware({
 	callbackData: {
 		headers: { 'Access-Control-Allow-Origin': '*' }
+	},
+	bodyParser: (event = {}) => {
+		//code
 	}
 })
 ```
@@ -84,7 +101,7 @@ exports.handler = new Middleware({
 | --- | --- | --- |
 | handler | *Function* | @param *{Object}* `event`	Lambda event (converted data type)<br>@param *{Object}* `context`	Lambda context<br>@param *{Object}* `prevData`	Previous handler return data|
 | handler | *Object* | PropTypes rules |
-
+   
 
 ```js
 exports.handler = new Middleware().add(async (event, context, prevData) => {
@@ -164,7 +181,7 @@ Parameter PropTypes validater
 | integer | Integer or Integeric string |
 | bool | Boolean or Boolean string |
 | array | Array, isRequired = array.length > 0 |
-
+   
 
 ```js
 exports.handler = new Middleware().add({
@@ -186,7 +203,7 @@ exports.handler = new Middleware().add({
 | Param | Type | Description |
 | --- | --- | --- |
 | rules | *Object* | - |
-
+   
 
 ```js
 const { Middleware, PropTypes } = require('aws-lambda-middleware')
@@ -232,4 +249,9 @@ PropTypes.addRules({
 ## Node Version Compatibility
 Node.js ^8.3.0
 
+&nbsp;
 
+## Changelog
+
+#### 0.5.2
+- Add and modify body parser options

@@ -13,6 +13,13 @@ PropTypes.addRules({
 			},
 			validRequired: (value) => {
 				return value.length > 0
+			},
+			convert: (value) => {
+				if (typeof value === 'string') {
+					return value
+				} else {
+					return value || ''
+				}
 			}
 		})
 	},

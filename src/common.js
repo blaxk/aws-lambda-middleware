@@ -46,7 +46,17 @@ const Common = {
 		}
 
 		return str
-	}
+	},
+
+	/**
+	 * get header
+	 * @param {Object}	event
+	 * @param {String}	propName	event.header propName, ex)"Content-Type"
+	 * @returns {*}
+	 */
+	getHeader: (event = {}, propName) => {
+		return Common.isObject(event.headers) ? event.headers[propName] || event.headers[propName.toLowerCase()] : undefined
+	},
 }
 
 module.exports = Common
