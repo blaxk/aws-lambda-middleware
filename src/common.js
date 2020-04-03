@@ -15,7 +15,7 @@ const Common = {
 				result = false
 				break
 			}
-		} else if (typeof value === 'number' || value) {
+		} else if (typeof value === 'boolean' || typeof value === 'number' || value) {
 			result = false
 		}
 
