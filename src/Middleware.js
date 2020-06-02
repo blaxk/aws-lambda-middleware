@@ -142,7 +142,11 @@ class Middleware {
 	}
 
 	_parseEvent (event = {}) {
-		if (event.httpMethod) {
+		/**
+		 * Lambda payload 1.0 = event.requestContext.httpMethod
+		 * Lambda payload 2.0 = event.requestContext.http.method
+		 */
+		if (event.requestContext && (event.requestContext.httpMethod || (event.requestContext.http && event.requestContext.http.method))) {
 			try {
 				if (typeof this._options.bodyParser === 'function') {
 					this._options.bodyParser(event)

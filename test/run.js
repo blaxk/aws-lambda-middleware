@@ -93,7 +93,7 @@ handler1({
 	"httpMethod": "GET",
 	"headers": {
 		"User-Agent": "PostmanRuntime/7.6.0",
-		"X-Forwarded-For": "175.211.38.132",
+		"X-Forwarded-For": "175.1.1.1",
 		"Content-Type": "application/json",
 	},
 	"queryStringParameters": {
@@ -110,15 +110,15 @@ handler1({
 			"userId": 12
 		},
 		"path": "/users/create",
-		"accountId": "758726136398",
-		"resourceId": "n4ey2n",
+		"accountId": "000000000000",
+		"resourceId": "skkkk00",
 		"stage": "dev",
 		"domainPrefix": "testPrefix",
 		"domainName": "testPrefix.testDomainName",
 		"resourcePath": "/users/create",
 		"httpMethod": "GET",
-		"extendedRequestId": "VwTpXHDCoE0FV7w=",
-		"apiId": "bunx7zc1c6"
+		"extendedRequestId": "VwTpXAACoE0FV7w=",
+		"apiId": "ujhfkdkd0988"
 	},
 	"body": "{\"username\":\"1\"}",
 	"isBase64Encoded": false

@@ -1,6 +1,6 @@
 {
 	"name": "aws-lambda-middleware",
-	"version": "0.5.3",
+	"version": "0.6.0",
 	"engines": {
 		"node": ">=8.3.0"
 	},
@@ -22,7 +22,8 @@
 		"aws",
 		"lambda",
 		"middleware",
-		"lambda middleware"
+		"lambda middleware",
+		"lambda payload 2.0"
 	],
 	"author": "blaxk",
 	"license": "MIT",

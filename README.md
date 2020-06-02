@@ -3,6 +3,7 @@
 #### AWS Lambda Middleware  
 You can simply apply Middleware in Lambda.       
 Clean code split is possible, and it includes a simple and extensible Parameter PropTypes validater.  
+> Lambda Payload 2.0 supported.
 
 &nbsp;
 
@@ -252,6 +253,9 @@ Node.js ^8.3.0
 &nbsp;
 
 ## Changelog
+
+#### 0.6.0
+- Lambda Payload 2.0 support
 
 #### 0.5.3
 - PropTypes.boo.isRequired bug fix
