@@ -85,6 +85,8 @@ class Middleware {
 					break
 				}
 			} catch (error) {
+				console.error(error)
+				
 				if (common.isError(error)) {
 					callback(error)
 				} else {
@@ -180,12 +182,6 @@ class Middleware {
 
 			if (!event.pathParameters) {
 				event.pathParameters = {}
-			}
-		}
-
-		if (event.requestContext && event.requestContext.authorizer && common.isObject(event.requestContext.authorizer)) {
-			for (let key in event.requestContext.authorizer) {
-				event.requestContext.authorizer[key] = common.convertDataType(event.requestContext.authorizer[key])
 			}
 		}
 

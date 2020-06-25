@@ -254,8 +254,9 @@ Node.js ^8.3.0
 
 ## Changelog
 
-#### 0.6.0
+#### 0.6.1
 - Lambda Payload 2.0 support
+- Add Lambda error log
 
 #### 0.5.3
 - PropTypes.boo.isRequired bug fix
