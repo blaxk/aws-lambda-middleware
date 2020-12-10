@@ -1,5 +1,8 @@
 # aws-lambda-middleware
 
+[![NPM version](https://img.shields.io/npm/v/aws-lambda-middleware.svg)](https://www.npmjs.com/package/aws-lambda-middleware)
+[![NPM downloads](https://img.shields.io/npm/dm/aws-lambda-middleware.svg)](https://www.npmjs.com/package/aws-lambda-middleware)
+
 #### AWS Lambda Middleware  
 You can simply apply Middleware in Lambda.       
 Clean code split is possible, and it includes a simple and extensible Parameter PropTypes validater.  
