@@ -261,7 +261,7 @@ Node.js ^8.3.0
 
 ## Changelog
 
-#### 0.7.0
+#### 0.7.1
 - Add PropTypes.*.default method
 - Add PropTypes.object
 

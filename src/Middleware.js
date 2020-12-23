@@ -125,11 +125,10 @@ class Middleware {
 						//set value & convert
 						if (common.isObject(event[groupKey])) {
 							const hasProp = event[groupKey].hasOwnProperty(propName)
-							const propValue = event[groupKey][propName]
 
-							if (common.isEmpty(propValue) && !common.isEmpty(rule._default, true)) {
+							if (common.isEmpty(val) && !common.isEmpty(rule._default, true)) {
 								event[groupKey][propName] = common.clone(rule._default)
-							} else if (hasProp && propValue && typeof rule._convert === 'function') {
+							} else if (hasProp && !common.isEmpty(val) && typeof rule._convert === 'function') {
 								event[groupKey][propName] = rule._convert(val)
 							}
 						}
