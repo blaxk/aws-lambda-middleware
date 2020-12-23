@@ -11,11 +11,14 @@ Middleware.globalOption({
 
 const handler1 = new Middleware().add({
 	body: {
-		username: PropTypes.string.isRequired
+		username: PropTypes.string.isRequired,
+		photos: PropTypes.array.default([])
 	}
 }).add(async (event, context, prevData) => {
 	//converted data type body
 	const body = event.body
+
+	console.log('-body:', body)
 
 	return {
 		statusCode: 200,
@@ -99,7 +102,7 @@ const palyload1 = {
 		'Header1': ['value1'],
 		'Header2': ['value1', 'value2']
 	},
-	queryStringParameters: { parameter1: 'value1', parameter2: 'value' },
+	queryStringParameters: { username: 'value1', parameter2: 'value' },
 	multiValueQueryStringParameters: { parameter1: ['value1', 'value2'], paramter2: ['value'] },
 	requestContext: {
 		accountId: '123456789012',
@@ -134,7 +137,7 @@ const palyload1 = {
 	},
 	pathParameters: null,
 	stageVariables: null,
-	body: 'Hello from Lambda!',
+	body: { username: 'testusername' },
 	isBase64Encoded: true
 }
 
@@ -179,7 +182,7 @@ const palyload2 = {
 	stageVariables: { 'stageVariable1': 'value1', 'stageVariable2': 'value2' }
 }
 
-handler1(palyload2, {
+handler1(palyload1, {
 
 }, (err, callbackData) => {
 		//callback

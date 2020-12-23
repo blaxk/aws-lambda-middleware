@@ -25,7 +25,8 @@ const { Middleware, PropTypes } = require('aws-lambda-middleware')
 exports.handler = new Middleware().add({
 	queryStringParameters: {
 		username: PropTypes.string.isRequired,
-		age: PropTypes.integer
+		age: PropTypes.integer,
+		photos: PropTypes.array.default([])
 	}
 }).add(async (event, context, prevData) => {
 	const query = event.queryStringParameters
@@ -185,6 +186,7 @@ Parameter PropTypes validater
 | integer | Integer or Integeric string |
 | bool | Boolean or Boolean string |
 | array | Array, isRequired = array.length > 0 |
+| object | Object, isRequired = Object.length > 0 |
 <br/>
 
 ```js
@@ -194,7 +196,9 @@ exports.handler = new Middleware().add({
 		//Type + Required
 		username: PropTypes.string.isRequired,
 		//Only Type (Do not check when there is empty value)
-		age: PropTypes.integer
+		age: PropTypes.integer,
+		//Type + Set the value that is replaced when the request value is empty
+		photos: PropTypes.array.default([])
 	}
 })
 ```
@@ -256,6 +260,10 @@ Node.js ^8.3.0
 &nbsp;
 
 ## Changelog
+
+#### 0.7.0
+- Add PropTypes.*.default method
+- Add PropTypes.object
 
 #### 0.6.1
 - Lambda Payload 2.0 support

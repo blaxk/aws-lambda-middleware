@@ -122,9 +122,16 @@ class Middleware {
 					if (errorMsg) {
 						break
 					} else {
-						//value convert
-						if (common.isObject(event[groupKey]) && event[groupKey].hasOwnProperty(propName) && typeof rule._convert === 'function') {
-							event[groupKey][propName] = rule._convert(val)
+						//set value & convert
+						if (common.isObject(event[groupKey])) {
+							const hasProp = event[groupKey].hasOwnProperty(propName)
+							const propValue = event[groupKey][propName]
+
+							if (common.isEmpty(propValue) && !common.isEmpty(rule._default, true)) {
+								event[groupKey][propName] = common.clone(rule._default)
+							} else if (hasProp && propValue && typeof rule._convert === 'function') {
+								event[groupKey][propName] = rule._convert(val)
+							}
 						}
 					}
 				}

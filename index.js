@@ -99,9 +99,18 @@ PropTypes.addRules({
 			},
 			validRequired: (value) => {
 				return value.length > 0
+			}
+		})
+	},
+
+	//Object
+	get object () {
+		return PropTypes.makeRule({
+			validType: (value) => {
+				return common.isObject(value)
 			},
-			convert: (value) => {
-				return value || []
+			validRequired: (value) => {
+				return !common.isEmpty(value)
 			}
 		})
 	}
@@ -110,3 +119,4 @@ PropTypes.addRules({
 
 exports.Middleware = Middleware
 exports.PropTypes = PropTypes
+exports.common = common

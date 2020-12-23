@@ -4,16 +4,20 @@ const Common = {
 		return Object.prototype.toString.call(value) === '[object Object]'
 	},
 
-	isEmpty: (value) => {
+	isEmpty: (value, isTypeData) => {
 		let result = true
 
 		if (Array.isArray(value)) {
-			result = value.length === 0
+			result = isTypeData ? false : value.length === 0
 		} else if (Common.isObject(value)) {
-			result = true;
-			for (const key in value) {
+			if (isTypeData) {
 				result = false
-				break
+			} else {
+				result = true;
+				for (const key in value) {
+					result = false
+					break
+				}
 			}
 		} else if (typeof value === 'boolean' || typeof value === 'number' || value) {
 			result = false
@@ -35,6 +39,27 @@ const Common = {
 	getHeader: (event = {}, propName) => {
 		return Common.isObject(event.headers) ? event.headers[propName] || event.headers[propName.toLowerCase()] : undefined
 	},
+
+	/**
+	 * Deep clone
+	 * @param {*} value 
+	 * @returns {*}
+	 */
+	clone: (value) => {
+		let result;
+
+		if (Array.isArray(value) || Common.isObject(value)) {
+			result = (Array.isArray(value)) ? [] : {}
+
+			for (const key in value) {
+				result[key] = Common.clone(value[key])
+			}
+		} else {
+			result = value
+		}
+
+		return result
+	}
 }
 
 module.exports = Common

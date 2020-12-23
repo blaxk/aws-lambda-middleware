@@ -4,6 +4,7 @@ const common = require('./common')
  * PropTypes
  * ex)
  * PropTypes.string
+ * PropTypes.string.default = '200'
  * PropTypes.string.isRequired
  */
 const PropTypes = {
@@ -22,7 +23,7 @@ const PropTypes = {
 				}
 			},
 			_convert: convert,
-			_required: false,
+
 			get isRequired () {
 				return {
 					_invalid: (propName, value) => {
@@ -38,6 +39,35 @@ const PropTypes = {
 					},
 					_convert: convert,
 					_required: true
+				}
+			},
+
+			/**
+			 * Set the value that is replaced when the request value is empty
+			 * @param {*} val
+			 */
+			default: (val) => {
+				let defaultVal = undefined
+				let defaultValError = ''
+
+				if (typeof validType === 'function') {
+					if (!common.isEmpty(val, true) && validType(val)) {
+						defaultVal = val
+					} else {
+						defaultValError = true
+					}
+				}
+
+				return {
+					_invalid: (propName, value) => {
+						if (defaultValError) {
+							return `invalid default parameter type "${propName}"`
+						} else if (typeof validType === 'function' && !common.isEmpty(value) && !validType(value)) {
+							return `invalid parameter type "${propName}"`
+						}
+					},
+					_convert: convert,
+					_default: defaultVal
 				}
 			}
 		}
