@@ -12,7 +12,7 @@ Middleware.globalOption({
 const handler1 = new Middleware().add({
 	body: {
 		username: PropTypes.string.isRequired,
-		photos: PropTypes.array.default([])
+		photos: PropTypes.array.default((event) => [Date.now()])
 	}
 }).add(async (event, context, prevData) => {
 	//converted data type body
@@ -189,3 +189,5 @@ handler1(palyload1, {
 		console.log('==err:', err)
 		console.log('==callbackData:', callbackData)
 })
+
+

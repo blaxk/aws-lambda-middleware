@@ -1,4 +1,3 @@
-const querystring = require('querystring')
 const common = require('./common')
 
 let globalOptions = {}
@@ -14,7 +13,7 @@ class Middleware {
 		if (common.isObject(options)) {
 			globalOptions = options
 		} else {
-			console.log('The globalOptions type is available only for objects.')
+			common.error('The globalOptions type is available only for objects.')
 		}
 	}
 
@@ -26,7 +25,7 @@ class Middleware {
 			this._options = options
 		} else {
 			this._options = {}
-			console.log('The clusterOptions type is available only for objects.')
+			common.error('The clusterOptions type is available only for objects.')
 		}
 		
 		this._flows = []
@@ -85,7 +84,7 @@ class Middleware {
 					break
 				}
 			} catch (error) {
-				console.error(error)
+				common.error(error)
 				
 				if (common.isError(error)) {
 					callback(error)
@@ -126,8 +125,14 @@ class Middleware {
 						if (common.isObject(event[groupKey])) {
 							const hasProp = event[groupKey].hasOwnProperty(propName)
 
-							if (common.isEmpty(val) && !common.isEmpty(rule._default, true)) {
-								event[groupKey][propName] = common.clone(rule._default)
+							if (common.isEmpty(val) && rule._default) {
+								try {
+									const defaultVal = await rule._default(propName, event)
+									event[groupKey][propName] = defaultVal
+								} catch (error) {
+									errorMsg = error
+									break
+								}
 							} else if (hasProp && !common.isEmpty(val) && typeof rule._convert === 'function') {
 								event[groupKey][propName] = rule._convert(val)
 							}
@@ -161,25 +166,11 @@ class Middleware {
 				} else if (typeof globalOptions.bodyParser === 'function') {
 					globalOptions.bodyParser(event)
 				} else {
-					if (event.body) {
-						const contentType = common.getHeader(event, 'Content-Type')
-
-						if (typeof event.body === 'string') {
-							if (/application\/json/i.test(contentType)) {
-								event.body = JSON.parse(event.body)
-							} else if (/application\/x-www-form-urlencoded/i.test(contentType)) {
-								event.body = {
-									...querystring.parse(event.body)
-								}
-							}
-						}
-					} else {
-						event.body = {}
-					}
+					common.bodyParser(event)
 				}
 			} catch (error) {
 				event.middlewareBodyParseError = 'Request event.body parse error!'
-				console.error(error)
+				common.error(error)
 			}
 
 			if (!event.queryStringParameters) {

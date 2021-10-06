@@ -4,7 +4,7 @@ const common = require('./common')
  * PropTypes
  * ex)
  * PropTypes.string
- * PropTypes.string.default = '200'
+ * PropTypes.string.default('200')
  * PropTypes.string.isRequired
  */
 const PropTypes = {
@@ -16,12 +16,14 @@ const PropTypes = {
 	},
 
 	makeRule ({ validType, validRequired, convert } = {}) {
+		const invalid = (propName, value) => {
+			if (typeof validType === 'function' && !common.isEmpty(value) && !validType(value)) {
+				return `invalid parameter type '${propName}'`
+			}
+		}
+		
 		return {
-			_invalid: (propName, value) => {
-				if (typeof validType === 'function' && !common.isEmpty(value) && !validType(value)) {
-					return `invalid parameter type "${propName}"`
-				}
-			},
+			_invalid: invalid,
 			_convert: convert,
 
 			get isRequired () {
@@ -29,11 +31,11 @@ const PropTypes = {
 					_invalid: (propName, value) => {
 						if (typeof validType === 'function' && typeof validRequired === 'function') {
 							if (common.isEmpty(value)) {
-								return `required parameter "${propName}"`
+								return `required parameter '${propName}'`
 							} else if (!validType(value)) {
-								return `invalid parameter type "${propName}"`
+								return `invalid parameter type '${propName}'`
 							} else if (!validRequired(value)) {
-								return `required parameter "${propName}"`
+								return `required parameter '${propName}'`
 							}
 						}
 					},
@@ -47,27 +49,32 @@ const PropTypes = {
 			 * @param {*} val
 			 */
 			default: (val) => {
-				let defaultVal = undefined
-				let defaultValError = ''
-
-				if (typeof validType === 'function') {
-					if (!common.isEmpty(val, true) && validType(val)) {
-						defaultVal = val
-					} else {
-						defaultValError = true
-					}
-				}
+				const defaultVal = common.isEmpty(val, true) ? undefined : val
 
 				return {
-					_invalid: (propName, value) => {
-						if (defaultValError) {
-							return `invalid default parameter type "${propName}"`
-						} else if (typeof validType === 'function' && !common.isEmpty(value) && !validType(value)) {
-							return `invalid parameter type "${propName}"`
+					_invalid: invalid,
+					// _convert: convert,
+					_default: async (propName, event) => {
+						if (typeof defaultVal === 'function') {
+							try {
+								const value = defaultVal(event)
+								
+								if (invalid(propName, value)) {
+									const invalidMsg = `'${propName}' default value type error`
+									common.error(`${invalidMsg}, -value:`, value, ' -type:', typeof value)
+									return Promise.reject(invalidMsg)
+								} else {
+									return common.clone(value)
+								}
+							} catch (error) {
+								const errMsg = `'${propName}' default function execution error`
+								common.error(`${errMsg}:`, error)
+								return Promise.reject(errMsg)
+							}
+						} else {
+							return common.clone(defaultVal)
 						}
-					},
-					_convert: convert,
-					_default: defaultVal
+					}
 				}
 			}
 		}

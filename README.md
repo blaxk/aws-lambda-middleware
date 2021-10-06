@@ -61,7 +61,15 @@ Middleware.globalOption({
 ```
 
 **bodyParser:** *{Function}*	Common event.body parser   
-Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.   
+Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.    
+The query string body parser supports the following formats:
+```
+'foo=1&foo=2&foo=3'
+'foo[]=1&foo[]=2&foo[]=3'
+'foo[0]=1&foo[1]=2&foo[3]=3'
+
+//return { foo: [1, 2, 3] }
+```  
 If you want to use another type of body parser, you can apply it at this point.
 
 ```js
@@ -198,7 +206,9 @@ exports.handler = new Middleware().add({
 		//Only Type (Do not check when there is empty value)
 		age: PropTypes.integer,
 		//Type + Set the value that is replaced when the request value is empty
-		photos: PropTypes.array.default([])
+		photos: PropTypes.array.default([]),
+		//The value returned by the function can be set as the default value.
+		startTime: PropTypes.number.default(event => Date.now())
 	}
 })
 ```
@@ -261,16 +271,20 @@ Node.js ^8.3.0
 
 ## Changelog
 
+#### 0.8.0
+- PropTypes.*.default, Added ability to set the value returned from a function as a default value.
+- body parser improvements
+
 #### 0.7.1
-- Add PropTypes.*.default method
-- Add PropTypes.object
+- Added PropTypes.*.default method
+- Added PropTypes.object
 
 #### 0.6.1
 - Lambda Payload 2.0 support
-- Add Lambda error log
+- Added Lambda error log
 
 #### 0.5.3
 - PropTypes.boo.isRequired bug fix
 
 #### 0.5.2
-- Add and modify body parser options
+- Added and modify body parser options
