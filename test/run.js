@@ -95,7 +95,7 @@ const palyload1 = {
 	path: '/my/path',
 	httpMethod: 'GET',
 	headers: {
-		'Header1': 'value1',
+		'Content-Type': 'application/x-www-form-urlencoded',
 		'Header2': 'value2'
 	},
 	multiValueHeaders: {
@@ -137,7 +137,7 @@ const palyload1 = {
 	},
 	pathParameters: null,
 	stageVariables: null,
-	body: { username: 'testusername' },
+	body: 'username=testname&photos[]=',
 	isBase64Encoded: true
 }
 
@@ -176,7 +176,7 @@ const palyload2 = {
 		time: '12/Mar/2020:19:03:58 +0000',
 		timeEpoch: 1583348638390
 	},
-	body: 'Hello from Lambda',
+	body: 'foo=1&foo=2&foo=3',
 	pathParameters: { 'parameter1': 'value1' },
 	isBase64Encoded: false,
 	stageVariables: { 'stageVariable1': 'value1', 'stageVariable2': 'value2' }
@@ -189,5 +189,3 @@ handler1(palyload1, {
 		console.log('==err:', err)
 		console.log('==callbackData:', callbackData)
 })
-
-

@@ -64,20 +64,21 @@ Middleware.globalOption({
 Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.    
 The query string body parser supports the following formats:
 ```
-'foo=1&foo=2&foo=3'
-'foo[]=1&foo[]=2&foo[]=3'
-'foo[0]=1&foo[1]=2&foo[3]=3'
+'foo=1&foo=&foo=3&name=test'
+'foo[]=1&foo[]=&foo[]=3&name=test'
+'foo[2]=3&foo[1]=&foo[0]=1&name=test'
 
-//return { foo: [1, 2, 3] }
+//return { foo: [ '1', '', '3' ], name: 'test' }
 ```  
 If you want to use another type of body parser, you can apply it at this point.
 
 ```js
-const { Middleware, PropTypes } = require('aws-lambda-middleware')
+const { Middleware, PropTypes, common } = require('aws-lambda-middleware')
 
 Middleware.globalOption({
 	bodyParser: (event = {}) => {
-		//code
+		//example code
+		event.queryStringParameters = common.queryParser(event.rawQueryString)
 	}
 })
 ```

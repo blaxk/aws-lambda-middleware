@@ -68,6 +68,47 @@ const Common = {
 		console.error('[aws-lambda-middleware]', ...arg)
 	},
 
+	/**
+	 * QueryString parser
+	 * suported array format
+	 * foo=1&foo=2&foo=3
+	 * foo[]=
+	 * foo[]=1&foo[]=2&foo[]=3
+	 * foo[0]=1&foo[1]=2&foo[3]=3
+	 * @param {String}	queryString
+	 * @returns {Object}
+	 */
+	queryParser: (queryString) => {
+		const params = {}
+
+		if (typeof queryString === 'string' && queryString.length) {
+			const searchParams = new URLSearchParams(queryString)
+			searchParams.sort()
+
+			for (const [propName, value] of searchParams) {
+				if (/([^\[\]]+)([\[\]0-9]+)/i.test(propName)) {
+					const name = RegExp.$1
+					// const aryStr = RegExp.$2
+
+					if (!params.hasOwnProperty(name)) {
+						params[name] = []
+					}
+
+					paramsToArray(params, name, value)
+				} else {
+					//array
+					if (params.hasOwnProperty(propName)) {
+						paramsToArray(params, propName, value)
+					} else {
+						params[propName] = value
+					}
+				}
+			}
+		}
+
+		return params
+	},
+
 	bodyParser: (event) => {
 		if (event.body) {
 			const contentType = Common.getHeader(event, 'Content-Type')
@@ -76,40 +117,7 @@ const Common = {
 				if (/application\/json/i.test(contentType)) {
 					event.body = JSON.parse(event.body)
 				} else if (/application\/x-www-form-urlencoded/i.test(contentType)) {
-					const params = {}
-					const searchParams = new URLSearchParams(event.body)
-					searchParams.sort()
-
-					/**
-					 * suported array format
-					 * foo=1&foo=2&foo=3
-					 * foo[]=
-					 * foo[]=1&foo[]=2&foo[]=3
-					 * foo[0]=1&foo[1]=2&foo[3]=3
-					 */
-					for (const [propName, value] of searchParams) {
-						if (/([^\[\]]+)([\[\]0-9]+)/i.test(propName)) {
-							const name = RegExp.$1
-							// const aryStr = RegExp.$2
-
-							if (!params.hasOwnProperty(name)) {
-								params[name] = []
-							}
-
-							paramsToArray(params, name, value)
-						} else {
-							//array
-							if (params.hasOwnProperty(propName)) {
-								paramsToArray(params, propName, value)
-							} else {
-								params[propName] = value
-							}
-						}
-					}
-
-					event.body = {
-						...params
-					}
+					event.body = Common.queryParser(event.body)
 				}
 			}
 		} else {
