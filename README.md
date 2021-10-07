@@ -272,9 +272,10 @@ Node.js ^8.3.0
 
 ## Changelog
 
-#### 0.8.0
+#### 0.8.1
 - PropTypes.*.default, Added ability to set the value returned from a function as a default value.
 - body parser improvements
+- PropTypes.addRules bug fix
 
 #### 0.7.1
 - Added PropTypes.*.default method

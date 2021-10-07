@@ -12,7 +12,10 @@ const PropTypes = {
 	/** ========== Public Methods ========== */
 	
 	addRules (obj) {
-		Object.setPrototypeOf(PropTypes, obj)
+		// Object.setPrototypeOf(PropTypes, obj)
+		for (const key in obj) {
+			PropTypes[key] = obj[key]
+		}
 	},
 
 	makeRule ({ validType, validRequired, convert } = {}) {

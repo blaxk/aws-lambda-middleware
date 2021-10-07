@@ -7,6 +7,18 @@ Middleware.globalOption({
 	}
 })
 
+PropTypes.addRules({
+	get date () {
+		return PropTypes.makeRule({
+			validType: (value) => {
+				return !!(typeof value === 'string')
+			},
+			validRequired: (value) => {
+				return !!value
+			}
+		})
+	}
+})
 
 
 const handler1 = new Middleware().add({
@@ -181,6 +193,9 @@ const palyload2 = {
 	isBase64Encoded: false,
 	stageVariables: { 'stageVariable1': 'value1', 'stageVariable2': 'value2' }
 }
+
+
+
 
 handler1(palyload1, {
 
