@@ -1,6 +1,6 @@
 {
 	"name": "aws-lambda-middleware",
-	"version": "0.8.2",
+	"version": "0.8.3",
 	"engines": {
 		"node": ">=8.3.0"
 	},
@@ -9,7 +9,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"eslint-plugin-node": "^11.1.0",
-		"eslint-plugin-import": "^2.25.0"
+		"eslint-plugin-import": "^2.25.1"
 	},
 	"scripts": {
 		"test": "node ./test/run.js"

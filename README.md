@@ -229,27 +229,39 @@ const { Middleware, PropTypes } = require('aws-lambda-middleware')
 
 PropTypes.addRules({
 	//It overrides the existing string rule.
-	get string () {
-		return PropTypes.makeRule({ 
-			//Valid function to check data type
-			validType: (value) => {
-				return typeof value === 'string'
+	get number () {
+		return PropTypes.makeRule({
+			/**
+			 * Valid function to check data type
+			 * @param {*}		value
+			 * @param {Boolean}	isDefaultValue	 Returns true when validating the value type set as the default.
+			 * */
+			validType: (value, isDefaultValue) => {
+				if (!isDefaultValue && typeof value === 'string') {
+					return /^-*[0-9]*[\.]*[0-9]+$/.test(value) && !/^0[0-9]+/.test(value) && !/^-0[0-9]+/.test(value) && !(value.length === 1 && value === '-')
+				} else {
+					return typeof value === 'number'
+				}
 			},
 			//Valid function to check if it is required
 			validRequired: (value) => {
-				return value.length > 0
+				return !isNaN(value)
 			},
 			//A function that converts the value of Paramers when it is incorrectly converted to a string. (Set only when necessary)
 			convert: (value) => {
-				return String(value)
+				if (typeof value === 'string') {
+					return Number(value)
+				} else {
+					return value
+				}
 			}
 		})
 	},
 
 	//Multiple settings are possible at once
-	get number () {
-		return PropTypes.makeRule({
-			validType: (value) => {
+	get string () {
+		return PropTypes.makeRule({ 
+			validType: (value, isDefaultValue) => {
 				return ...
 			},
 			validRequired: (value) => {
@@ -272,8 +284,9 @@ Node.js ^8.3.0
 
 ## Changelog
 
-#### 0.8.2
+#### 0.8.3
 - PropTypes.*.default, Added ability to set the value returned from a function as a default value.
+- Validate value type set as default
 - body parser improvements
 - PropTypes.addRules bug fix
 

@@ -8,7 +8,7 @@ PropTypes.addRules({
 	//String
 	get string () {
 		return PropTypes.makeRule({
-			validType: (value) => {
+			validType: (value, isDefaultValue) => {
 				return typeof value === 'string'
 			},
 			validRequired: (value) => {
@@ -27,8 +27,8 @@ PropTypes.addRules({
 	//Number & Numberic string
 	get number () {
 		return PropTypes.makeRule({
-			validType: (value) => {
-				if (typeof value === 'string') {
+			validType: (value, isDefaultValue) => {
+				if (!isDefaultValue && typeof value === 'string') {
 					return /^-*[0-9]*[\.]*[0-9]+$/.test(value) && !/^0[0-9]+/.test(value) && !/^-0[0-9]+/.test(value) && !(value.length === 1 && value === '-')
 				} else {
 					return typeof value === 'number'
@@ -50,8 +50,8 @@ PropTypes.addRules({
 	//Integer & Integeric string
 	get integer () {
 		return PropTypes.makeRule({
-			validType: (value) => {
-				if (typeof value === 'string') {
+			validType: (value, isDefaultValue) => {
+				if (!isDefaultValue && typeof value === 'string') {
 					return /^-*[0-9]+$/.test(value) && !/^0[0-9]+/.test(value) && !/^-0[0-9]+/.test(value) && !(value.length === 1 && value === '-')
 				} else {
 					return Number.isInteger(value)
@@ -73,8 +73,8 @@ PropTypes.addRules({
 	//Boolean & Boolean string
 	get bool () {
 		return PropTypes.makeRule({
-			validType: (value) => {
-				return typeof value === 'string' ? /^(true|false)$/.test(value) : typeof value === 'boolean'
+			validType: (value, isDefaultValue) => {
+				return !isDefaultValue && typeof value === 'string' ? /^(true|false)$/.test(value) : typeof value === 'boolean'
 			},
 			validRequired: (value) => {
 				return !common.isEmpty(value)
@@ -94,7 +94,7 @@ PropTypes.addRules({
 	//Array
 	get array () {
 		return PropTypes.makeRule({
-			validType: (value) => {
+			validType: (value, isDefaultValue) => {
 				return Array.isArray(value)
 			},
 			validRequired: (value) => {
@@ -106,7 +106,7 @@ PropTypes.addRules({
 	//Object
 	get object () {
 		return PropTypes.makeRule({
-			validType: (value) => {
+			validType: (value, isDefaultValue) => {
 				return common.isObject(value)
 			},
 			validRequired: (value) => {

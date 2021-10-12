@@ -15,14 +15,14 @@ const Common = {
 			if (isTypeData) {
 				result = false
 			} else {
-				result = true
-				
 				for (const key in value) {
 					result = false
 					break
 				}
 			}
-		} else if (typeof value === 'boolean' || typeof value === 'number' || value) {
+		} else if (typeof value === 'number') {
+			result = isNaN(value)
+		} else if (typeof value === 'boolean' || value) {
 			result = false
 		}
 

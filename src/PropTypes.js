@@ -22,8 +22,16 @@ const PropTypes = {
 	},
 
 	makeRule ({ validType, validRequired, convert } = {}) {
-		const invalid = (propName, value) => {
-			if (typeof validType === 'function' && !common.isEmpty(value) && !validType(value)) {
+		const invalid = (propName, value, isDefaultValue) => {
+			let isEmpty = false
+
+			if (isDefaultValue) {
+				isEmpty = !(['boolean', 'number', 'string', 'undefined'].includes(typeof value) || value)
+			} else {
+				isEmpty = common.isEmpty(value)
+			}
+
+			if (typeof validType === 'function' && !isEmpty && !validType(value, isDefaultValue)) {
 				return `invalid parameter type '${propName}'`
 			}
 		}
@@ -78,7 +86,7 @@ const PropTypes = {
 						}
 
 						//valid type
-						if (invalid(propName, value)) {
+						if (invalid(propName, value, true)) {
 							const invalidMsg = `'${propName}' default value type error`
 							common.error(`${invalidMsg}, -value:`, value, ' -type:', typeof value)
 							return Promise.reject(invalidMsg)
