@@ -14,7 +14,10 @@ const PropTypes = {
 	addRules (obj) {
 		// Object.setPrototypeOf(PropTypes, obj)
 		for (const key in obj) {
-			PropTypes[key] = obj[key]
+			if (!['addRules', 'makeRule'].includes(key)) {
+				PropTypes[key] = obj[key]
+				PropTypes[key]._type = key
+			}
 		}
 	},
 
@@ -24,8 +27,8 @@ const PropTypes = {
 				return `invalid parameter type '${propName}'`
 			}
 		}
-		
-		return {
+
+		const Rule = {
 			_invalid: invalid,
 			_convert: convert,
 
@@ -43,7 +46,8 @@ const PropTypes = {
 						}
 					},
 					_convert: convert,
-					_required: true
+					_required: true,
+					_type: this._type
 				}
 			},
 
@@ -52,35 +56,44 @@ const PropTypes = {
 			 * @param {*} val
 			 */
 			default: (val) => {
-				const defaultVal = common.isEmpty(val, true) ? undefined : val
+				const defaultVal = val
 
 				return {
 					_invalid: invalid,
 					// _convert: convert,
 					_default: async (propName, event) => {
+						let value
+
+						//get default value
 						if (typeof defaultVal === 'function') {
 							try {
-								const value = defaultVal(event)
-								
-								if (invalid(propName, value)) {
-									const invalidMsg = `'${propName}' default value type error`
-									common.error(`${invalidMsg}, -value:`, value, ' -type:', typeof value)
-									return Promise.reject(invalidMsg)
-								} else {
-									return common.clone(value)
-								}
+								value = defaultVal(event)
 							} catch (error) {
 								const errMsg = `'${propName}' default function execution error`
 								common.error(`${errMsg}:`, error)
 								return Promise.reject(errMsg)
 							}
 						} else {
-							return common.clone(defaultVal)
+							value = defaultVal
 						}
-					}
+
+						//valid type
+						if (invalid(propName, value)) {
+							const invalidMsg = `'${propName}' default value type error`
+							common.error(`${invalidMsg}, -value:`, value, ' -type:', typeof value)
+							return Promise.reject(invalidMsg)
+						} else {
+							return common.clone(value)
+						}
+					},
+					_type: Rule._type
 				}
-			}
+			},
+
+			_type: this._type
 		}
+		
+		return Rule
 	}
 }
 

@@ -24,6 +24,7 @@ PropTypes.addRules({
 const handler1 = new Middleware().add({
 	body: {
 		username: PropTypes.string.isRequired,
+		address: PropTypes.string.default(''),
 		photos: PropTypes.array.default((event) => [Date.now()])
 	}
 }).add(async (event, context, prevData) => {
