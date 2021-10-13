@@ -63,7 +63,7 @@ Middleware.globalOption({
 
 **bodyParser:** *{Function}*	Common event.body parser   
 Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.    
-The query string parser supports the following formats:
+The query string parser supports the following formats (application/x-www-form-urlencoded):
 ```
 'foo=1&foo=&foo=3&name=jim&profile[age]=20'
 'foo[]=1&foo[]=&foo[]=3&name=jim&profile[age]=20'
