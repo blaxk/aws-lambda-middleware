@@ -1,4 +1,4 @@
-const { Middleware, PropTypes } = require('../index')
+const { Middleware, PropTypes, common } = require('../index')
 
 
 Middleware.globalOption({

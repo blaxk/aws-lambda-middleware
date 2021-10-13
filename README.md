@@ -6,6 +6,7 @@
 #### AWS Lambda Middleware  
 You can simply apply Middleware in Lambda.       
 Clean code split is possible, and it includes a simple and extensible Parameter PropTypes validater.  
+It is implemented as lightly as possible to reduce the burden when running Lambda.   
 > Lambda Payload 2.0 supported.
 
 &nbsp;
@@ -62,23 +63,29 @@ Middleware.globalOption({
 
 **bodyParser:** *{Function}*	Common event.body parser   
 Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.    
-The query string body parser supports the following formats:
+The query string parser supports the following formats:
 ```
-'foo=1&foo=&foo=3&name=test'
-'foo[]=1&foo[]=&foo[]=3&name=test'
-'foo[2]=3&foo[1]=&foo[0]=1&name=test'
+'foo=1&foo=&foo=3&name=jim&profile[age]=20'
+'foo[]=1&foo[]=&foo[]=3&name=jim&profile[age]=20'
+'foo[2]=3&foo[1]=&foo[0]=1&name=jim&profile[age]=20'
+'foo[2]=3&foo[1]=&foo[0]=1&name=jim&profile[age]=20'
 
-//return { foo: [ '1', '', '3' ], name: 'test' }
+//only parse up to 2 depth
+//return { foo: [ '1', '', '3' ], name: 'jim', profile: { age: '20' } }
 ```  
 If you want to use another type of body parser, you can apply it at this point.
 
 ```js
 const { Middleware, PropTypes, common } = require('aws-lambda-middleware')
+const qs = require('qs')
 
 Middleware.globalOption({
 	bodyParser: (event = {}) => {
-		//example code
-		event.queryStringParameters = common.queryParser(event.rawQueryString)
+		const contentType = common.getHeader(event, 'Content-Type')
+		
+		if (/application\/x-www-form-urlencoded/i.test(contentType)) {
+			event.body = qs.parse(event.body)
+		}
 	}
 })
 ```
@@ -284,11 +291,11 @@ Node.js ^8.3.0
 
 ## Changelog
 
-#### 0.8.3
+#### 0.8.4
 - PropTypes.*.default, Added ability to set the value returned from a function as a default value.
 - Validate value type set as default
-- body parser improvements
 - PropTypes.addRules bug fix
+- body parser improvements
 
 #### 0.7.1
 - Added PropTypes.*.default method

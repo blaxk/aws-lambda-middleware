@@ -75,6 +75,7 @@ const Common = {
 	 * foo[]=
 	 * foo[]=1&foo[]=2&foo[]=3
 	 * foo[0]=1&foo[1]=2&foo[3]=3
+	 * foo[age]=20&foo[name]=jim
 	 * @param {String}	queryString
 	 * @returns {Object}
 	 */
@@ -86,19 +87,41 @@ const Common = {
 			searchParams.sort()
 
 			for (const [propName, value] of searchParams) {
-				if (/([^\[\]]+)([\[\]0-9]+)/i.test(propName)) {
+				if (/([^\[\]]+)(\[.*\])/i.test(propName)) {
 					const name = RegExp.$1
-					// const aryStr = RegExp.$2
+					const depthAry = RegExp.$2.match(/\[[^\[\]]*\]/g)
+					const depthLength = depthAry.length
+					
+					//depth 1 limit
+					if (depthLength === 1) {
+						for (let i = 0; i < depthLength; ++i) {
+							const key = depthAry[i].replace(/[\[\]]/g, '')
 
-					if (!params.hasOwnProperty(name)) {
-						params[name] = []
+							if (key && /[^0-9]+/.test(key)) {
+								//object
+								if (!params.hasOwnProperty(name)) {
+									params[name] = {}
+								}
+
+								params[name][key] = value
+							} else {
+								//array
+								if (!params.hasOwnProperty(name)) {
+									params[name] = []
+								}
+
+								params[name].push(value)
+							}
+						}
 					}
-
-					paramsToArray(params, name, value)
 				} else {
 					//array
 					if (params.hasOwnProperty(propName)) {
-						paramsToArray(params, propName, value)
+						if (Array.isArray(params[propName])) {
+							params[propName].push(value)
+						} else {
+							params[propName] = [params[propName], value]
+						}
 					} else {
 						params[propName] = value
 					}
@@ -123,15 +146,6 @@ const Common = {
 		} else {
 			event.body = {}
 		}
-	}
-}
-
-
-function paramsToArray (params, propName, value) {
-	if (Array.isArray(params[propName])) {
-		params[propName].push(value)
-	} else {
-		params[propName] = [params[propName], value]
 	}
 }
 
