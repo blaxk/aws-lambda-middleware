@@ -322,7 +322,7 @@ Node.js ^8.3.0
 
 ## Changelog
 
-#### 0.9.0
+#### 0.9.1
 - Added trim option
 - Fixed a bug where "convert" was not executed when applying PropTypes.*.default
 
