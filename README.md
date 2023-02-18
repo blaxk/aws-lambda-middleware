@@ -109,7 +109,7 @@ exports.handler = new Middleware({
 ```
 
 ### trim: *{Boolean}*	
-> Remove whitespace from both ends of the Parameter string.   
+> When the Trim option is set, whitespaces are removed from both ends of the parameter string.   
 
 The trim option can be applied in three forms.
 ```js
