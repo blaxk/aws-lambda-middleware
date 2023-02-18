@@ -109,13 +109,19 @@ class Middleware {
 				const propTypeRules = propGroup[groupKey]
 
 				for (const propName in propTypeRules) {
-					const rule = propTypeRules[propName]
-					const val = common.isObject(event[groupKey]) ? event[groupKey][propName] : undefined
+					const propTypeRule = this._getPropTypeRule(propTypeRules[propName])
+					const rule = propTypeRule.rule
+					let val = common.isObject(event[groupKey]) ? event[groupKey][propName] : undefined
+
+					//trim option
+					if (val && typeof val === 'string') {
+						event[groupKey][propName] = val = this._trim(val, propTypeRule.options)
+					}
 					
-					if (rule && typeof rule._invalid === 'function') {
+					if (typeof rule._invalid === 'function') {
 						errorMsg = rule._invalid(propName, val)
 					} else {
-						errorMsg = 'You have set propTypes that are not supported.'
+						// errorMsg = 'You have set propTypes that are not supported.'
 					}
 
 					if (errorMsg) {
@@ -183,6 +189,44 @@ class Middleware {
 		}
 
 		return event
+	}
+
+	// @returns {Object}	{ rule, options }
+	_getPropTypeRule (propTypeRuleData) {
+		const result = {
+			rule: {},
+			options: {}
+		}
+		
+		if (propTypeRuleData && common.isObject(propTypeRuleData)) {
+			if (propTypeRuleData._isRule) {
+				result.rule = propTypeRuleData
+			} else {
+				for (const key in propTypeRuleData) {
+					if (key === 'propType') {
+						if (propTypeRuleData.propType._isRule) {
+							result.rule = propTypeRuleData.propType
+						}
+					} else {
+						result.options[key] = propTypeRuleData[key]
+					}
+				}
+			}
+		}
+
+		return result
+	}
+
+	_trim (val, propTypeRuleOptions = {}) {
+		let isTrim = !!globalOptions.trim
+
+		if (!common.isEmpty(propTypeRuleOptions.trim)) {
+			isTrim = propTypeRuleOptions.trim
+		} else if (!common.isEmpty(this._options.trim)) {
+			isTrim = this._options.trim
+		}
+
+		return isTrim ? val.trim() : val
 	}
 }
 

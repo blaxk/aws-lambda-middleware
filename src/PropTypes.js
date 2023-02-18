@@ -55,7 +55,8 @@ const PropTypes = {
 					},
 					_convert: convert,
 					_required: true,
-					_type: this._type
+					_type: this._type,
+					_isRule: true
 				}
 			},
 
@@ -68,7 +69,7 @@ const PropTypes = {
 
 				return {
 					_invalid: invalid,
-					// _convert: convert,
+					_convert: convert,
 					_default: async (propName, event) => {
 						let value
 
@@ -94,11 +95,13 @@ const PropTypes = {
 							return common.clone(value)
 						}
 					},
-					_type: Rule._type
+					_type: Rule._type,
+					_isRule: true
 				}
 			},
 
-			_type: this._type
+			_type: this._type,
+			_isRule: true
 		}
 		
 		return Rule

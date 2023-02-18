@@ -4,7 +4,8 @@ const { Middleware, PropTypes, common } = require('../index')
 Middleware.globalOption({
 	callbackData: {
 		headers: { 'Access-Control-Allow-Origin': '*' }
-	}
+	},
+	trim: true
 })
 
 PropTypes.addRules({
@@ -21,10 +22,15 @@ PropTypes.addRules({
 })
 
 
-const handler1 = new Middleware().add({
+const handler1 = new Middleware({
+	trim: false
+}).add({
 	body: {
 		username: PropTypes.string.isRequired,
-		address: PropTypes.integer.default(),
+		address: {
+			propType: PropTypes.string.isRequired,
+			trim: true
+		},
 		photos: PropTypes.array.default((event) => [Date.now()])
 	}
 }).add(async (event, context, prevData) => {
@@ -49,7 +55,7 @@ const handler2 = new Middleware({
 }).add({
 	queryStringParameters: {
 		username: PropTypes.string.isRequired,
-		age: PropTypes.integer
+		age: PropTypes.integer.default(0)
 	}
 }).add(async (event, context, prevData) => {
 	//converted data type body
@@ -115,7 +121,7 @@ const palyload1 = {
 		'Header1': ['value1'],
 		'Header2': ['value1', 'value2']
 	},
-	queryStringParameters: { username: 'value1', parameter2: 'value' },
+	queryStringParameters: { username: 'value1', parameter2: 'value', age: '7' },
 	multiValueQueryStringParameters: { parameter1: ['value1', 'value2'], paramter2: ['value'] },
 	requestContext: {
 		accountId: '123456789012',
@@ -150,7 +156,7 @@ const palyload1 = {
 	},
 	pathParameters: null,
 	stageVariables: null,
-	body: 'username=testname&photos[]=',
+	body: 'username=testname&address= aa b   &photos[]=',
 	isBase64Encoded: true
 }
 
