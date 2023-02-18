@@ -275,23 +275,23 @@ PropTypes.addRules({
          * @param {Boolean}	isDefaultValue	 Returns true when validating the value type set as the default.
          * */
         validType: (value, isDefaultValue) => {
-        if (!isDefaultValue && typeof value === 'string') {
-          return /^-*[0-9]*[\.]*[0-9]+$/.test(value) && !/^0[0-9]+/.test(value) && !/^-0[0-9]+/.test(value) && !(value.length === 1 && value === '-')
-        } else {
-          return typeof value === 'number'
-        }
+          if (!isDefaultValue && typeof value === 'string') {
+            return /^-*[0-9]*[\.]*[0-9]+$/.test(value) && !/^0[0-9]+/.test(value) && !/^-0[0-9]+/.test(value) && !(value.length === 1 && value === '-')
+          } else {
+            return typeof value === 'number'
+          }
         },
         //Valid function to check if it is required
         validRequired: (value) => {
-        return !isNaN(value)
+          return !isNaN(value)
         },
         //A function that converts the value of Paramers when it is incorrectly converted to a string. (Set only when necessary)
         convert: (value) => {
-        if (typeof value === 'string') {
-          return Number(value)
-        } else {
-          return value
-        }
+          if (typeof value === 'string') {
+            return Number(value)
+          } else {
+            return value
+          }
         }
     })
   },
@@ -300,13 +300,13 @@ PropTypes.addRules({
   get string () {
     return PropTypes.makeRule({ 
         validType: (value, isDefaultValue) => {
-        return ...
+          return ...
         },
         validRequired: (value) => {
-        return ...
+          return ...
         },
         convert: (value) => {
-        return ...
+          return ...
         }
     })
   }
