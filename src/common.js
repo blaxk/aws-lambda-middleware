@@ -2,28 +2,36 @@ const { URLSearchParams } = require('url')
 
 
 const Common = {
+	RESERVED_PROPS: Object.freeze([
+		'addRules', 'makeRule', 'isEmpty', 'default', 'isRequired', 'option', 'array', 'object',
+		'required', 'valid', 'item', 'items'
+	]),
+
 	isObject: (value) => {
-		return Object.prototype.toString.call(value) === '[object Object]'
+		return Object.prototype.toString.call(value) === '[object Object]' && !(value && value._isRule)
+	},
+
+	isNumber: (value) => {
+		return typeof value === 'number'
 	},
 
 	isEmpty: (value, isTypeData) => {
 		let result = true
 
 		if (Array.isArray(value)) {
-			result = isTypeData ? false : value.length === 0
+			result = isTypeData ? false : !value.length
 		} else if (Common.isObject(value)) {
 			if (isTypeData) {
-				result = false
+				result = !value
 			} else {
-				for (const key in value) {
-					result = false
-					break
-				}
+				result = !(value && Object.keys(value).length)
 			}
 		} else if (typeof value === 'number') {
 			result = isNaN(value)
-		} else if (typeof value === 'boolean' || value) {
+		} else if (typeof value === 'boolean') {
 			result = false
+		} else {
+			result = !value
 		}
 
 		return result
@@ -31,6 +39,30 @@ const Common = {
 
 	isError: (value) => {
 		return /^\[[^\]]+Error\]$/.test(Object.prototype.toString.call(value))
+	},
+
+	//Object, Array, String, Number, NaN, Null, Function, Date, Boolean, RegExp, Error, Undefined
+	type: (value, lowerCase) => {
+		let result = Object.prototype.toString.call(value)
+		result = result.match(/^\[\W*object\W+([a-zA-Z]+)\W*\]$/)
+
+		if (result && result.length > 1) {
+			result = result[1]
+		}
+
+		if (result === 'Number') {
+			if (isNaN(value)) {
+				result = 'NaN'
+			}
+		} else if (result === 'Object') {
+			if (undefined === value) {
+				result = 'Undefined'
+			} else if (null === value) {
+				result = 'Null'
+			}
+		}
+
+		return lowerCase ? result.toLowerCase() : result
 	},
 
 	/**
@@ -49,7 +81,7 @@ const Common = {
 	 * @returns {*}
 	 */
 	clone: (value) => {
-		let result;
+		let result
 
 		if (Array.isArray(value) || Common.isObject(value)) {
 			result = (Array.isArray(value)) ? [] : {}
@@ -62,6 +94,14 @@ const Common = {
 		}
 
 		return result
+	},
+
+	info: (...arg) => {
+		console.info('[aws-lambda-middleware]', ...arg)
+	},
+
+	warn: (...arg) => {
+		console.warn('[aws-lambda-middleware]', ...arg)
 	},
 
 	error: (...arg) => {
@@ -87,9 +127,11 @@ const Common = {
 			searchParams.sort()
 
 			for (const [propName, value] of searchParams) {
-				if (/([^\[\]]+)(\[.*\])/i.test(propName)) {
-					const name = RegExp.$1
-					const depthAry = RegExp.$2.match(/\[[^\[\]]*\]/g)
+				const match = Common.matchProp(propName)
+
+				if (match) {
+					const name = match.name
+					const depthAry = match.value.match(/\[[^\[\]]*\]/g)
 					const depthLength = depthAry.length
 					
 					//depth 1 limit
@@ -99,14 +141,14 @@ const Common = {
 
 							if (key && /[^0-9]+/.test(key)) {
 								//object
-								if (!params.hasOwnProperty(name)) {
+								if (!Object.hasOwn(params, name)) {
 									params[name] = {}
 								}
 
 								params[name][key] = value
 							} else {
 								//array
-								if (!params.hasOwnProperty(name)) {
+								if (!Object.hasOwn(params, name)) {
 									params[name] = []
 								}
 
@@ -116,7 +158,7 @@ const Common = {
 					}
 				} else {
 					//array
-					if (params.hasOwnProperty(propName)) {
+					if (Object.hasOwn(params, propName)) {
 						if (Array.isArray(params[propName])) {
 							params[propName].push(value)
 						} else {
@@ -146,8 +188,25 @@ const Common = {
 		} else {
 			event.body = {}
 		}
+	},
+
+	/**
+	 * @param {String} propName 
+	 * @returns {Object}	{ name, value } || null
+	 */
+	matchProp (propName) {
+		const matchAry = propName.match(/([^\[\]]+)(\[.*\])/i)
+
+		if (matchAry?.length) {
+			return {
+				name: matchAry[1],
+				value: matchAry[2],
+			}
+		} else {
+			return null
+		}
 	}
 }
 
 
-module.exports = Common
+module.exports = Object.freeze(Common)

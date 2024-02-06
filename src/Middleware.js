@@ -1,6 +1,10 @@
+const PropTypes = require('./PropTypes')
 const common = require('./common')
 
-let globalOptions = {}
+const _globalOptions = {
+	//single, simple, full
+	pathPropNameType: 'simple'
+}
 
 
 class Middleware {
@@ -11,7 +15,9 @@ class Middleware {
 	 */
 	static globalOption (options = {}) {
 		if (common.isObject(options)) {
-			globalOptions = options
+			for (const key in options) {
+				_globalOptions[key] = options[key]
+			}
 		} else {
 			common.error('The globalOptions type is available only for objects.')
 		}
@@ -31,6 +37,7 @@ class Middleware {
 		this._flows = []
 		this._handler = this._handler.bind(this)
 		this._handler.add = this.add.bind(this)
+		this._handler.valid = this.valid.bind(this)
 	}
 
 	/** ========== Public Methods ========== */
@@ -55,6 +62,63 @@ class Middleware {
 		return this._handler
 	}
 
+	/**
+	 * add orgin lambda handler
+	 * @param {Function} func
+	 */
+	handler (func) {
+		if (typeof func === 'function') {
+			this._flows.push({
+				type: 'lambda-handler',
+				handler: func
+			})
+		}
+
+		return this._handler
+	}
+
+	/**
+	 * Validate data with "PropTypeRule + ValidateRule" set in Middleware
+	 * @param {Object} 	data	Data to be validated
+	 * @returns {Object}	{ status, message }
+	 * 	status = none, valid, invalid, error
+	 */
+	valid (data) {
+		//none, valid, invalid, error
+		let status = 'none'
+		let error = ''
+
+		if (common.isObject(data)) {
+			for (const i in this._flows) {
+				const flow = this._flows[i]
+
+				if (flow.type === 'props') {
+					try {
+						error = this._validError(data, flow.props)
+
+						if (error) {
+							status = 'invalid'
+						}
+					} catch (err) {
+						error = err?.stack || err?.message || 'valid error!'
+						status = 'error'
+					}
+				}
+
+				if (error) break
+			}
+
+			if (!error) {
+				status = 'valid'
+			}
+		}
+
+		return {
+			status,
+			message: error
+		}
+	}
+
 	/** ========== Private Methods ========== */
 	
 	//lambda handler
@@ -63,90 +127,63 @@ class Middleware {
 		const flowLength = this._flows.length
 		let prevData = {}
 
-		for (const i in this._flows) {
-			const flow = this._flows[i]
+		if (evt.middlewareBodyParseError) {
+			common.error(evt.middlewareBodyParseError)
+			callback(null, {
+				..._globalOptions.callbackData,
+				...this._options.callbackData,
+				statusCode: 400,
+				body: JSON.stringify({
+					message: evt.middlewareBodyParseError
+				})
+			})
+		} else {
+			for (const i in this._flows) {
+				const flow = this._flows[i]
+				const isLambdaHandler = flow.type === 'lambda-handler'
 
-			try {
-				if (flow.type === 'handler') {
-					prevData = await flow.handler(evt, context, prevData)
-				} else {
-					prevData = await this._validPropTypes(evt, flow.props)
-				}
+				try {
+					if (flow.type === 'props') {
+						prevData = await this._validation(evt, flow.props)
+					} else if (flow.type === 'handler') {
+						prevData = await flow.handler(evt, context, prevData)
+					} else if (isLambdaHandler) {
+						prevData = await flow.handler(evt, context, callback)
+					}
 
-				//last flow callback
-				if (flowLength - 1 == i) {
-					callback(null, common.isObject(prevData) ? {
-						...globalOptions.callbackData,
-						...this._options.callbackData,
-						...prevData
-					} : prevData)
+					//last flow callback
+					if (flowLength - 1 == i) {
+						if (!isLambdaHandler) callback(null, common.isObject(prevData) ? {
+							..._globalOptions.callbackData,
+							...this._options.callbackData,
+							...prevData
+						} : prevData)
+
+						break
+					}
+				} catch (error) {
+					if (common.isError(error)) {
+						common.error(error)
+
+						if (!isLambdaHandler) callback(error)
+					} else {
+						common.info(error)
+						if (!isLambdaHandler) callback(null, common.isObject(error) ? {
+							..._globalOptions.callbackData,
+							...this._options.callbackData,
+							...error
+						} : error)
+					}
 
 					break
 				}
-			} catch (error) {
-				common.error(error)
-				
-				if (common.isError(error)) {
-					callback(error)
-				} else {
-					callback(null, common.isObject(error) ? {
-						...globalOptions.callbackData,
-						...this._options.callbackData,
-						...error
-					} : error)
-				}
-
-				break
 			}
 		}
 	}
 
-	async _validPropTypes (event, propGroup) {
-		let errorMsg = event.middlewareBodyParseError || ''
-
-		if (!errorMsg && common.isObject(propGroup)) {
-			for (const groupKey in propGroup) {
-				const propTypeRules = propGroup[groupKey]
-
-				for (const propName in propTypeRules) {
-					const propTypeRule = this._getPropTypeRule(propTypeRules[propName])
-					const rule = propTypeRule.rule
-					let val = common.isObject(event[groupKey]) ? event[groupKey][propName] : undefined
-
-					//trim option
-					if (val && typeof val === 'string') {
-						event[groupKey][propName] = val = this._trim(val, propTypeRule.options)
-					}
-					
-					if (typeof rule._invalid === 'function') {
-						errorMsg = rule._invalid(propName, val)
-					} else {
-						// errorMsg = 'You have set propTypes that are not supported.'
-					}
-
-					if (errorMsg) {
-						break
-					} else {
-						//set value & convert
-						if (common.isObject(event[groupKey])) {
-							const hasProp = event[groupKey].hasOwnProperty(propName)
-
-							if (common.isEmpty(val) && rule._default) {
-								try {
-									const defaultVal = await rule._default(propName, event)
-									event[groupKey][propName] = defaultVal
-								} catch (error) {
-									errorMsg = error
-									break
-								}
-							} else if (hasProp && !common.isEmpty(val) && typeof rule._convert === 'function') {
-								event[groupKey][propName] = rule._convert(val)
-							}
-						}
-					}
-				}
-			}
-		}
+	//propType and validate
+	async _validation (event, props) {
+		const errorMsg = this._validError(event, props)
 
 		if (errorMsg) {
 			return Promise.reject({
@@ -159,6 +196,176 @@ class Middleware {
 			return {}
 		}
 	}
+	
+	/**
+	 * All request data is validated using PropTypeRule and ValidateRule and an error message is returned.
+	 * @param {Object} event 
+	 * @param {Object} ruleGroup 
+	 * @returns {String}
+	 */
+	_validError (event, ruleGroup) {
+		let error = ''
+
+		if (common.isObject(event) && common.isObject(ruleGroup)) {
+			//propType check
+			for (const propName in ruleGroup) {
+				error = this._validProps(propName, ruleGroup, event, event, [propName])
+				if (error) break
+			}
+
+			if (!error) {
+				//validate check
+				for (const propName in ruleGroup) {
+					error = this._validValidates(propName, ruleGroup, event, event, [propName])
+					if (error) break
+				}
+			}
+		}
+
+		return error
+	}
+
+	/**
+	 * recursive call function
+	 * @param {String} propName 
+	 * @param {Object} rules
+	 * @param {*} sibling 
+	 * @param {Object} event 
+	 * @param {Array} pathPropNames
+	 * @returns {String}
+	 */
+	_validProps (propName, rules, sibling, event, pathPropNames = []) {
+		let error = ''
+		const propTypeRule = this._getRule(rules[propName])
+
+		if (propTypeRule) {
+			error = propTypeRule._validPropRules(propName, sibling, event, {
+				...this._getEtcOption(),
+				pathPropNames
+			})
+			
+			//When a rule item exists inside propTypeRule
+			if (!error && propTypeRule._props.item) {
+				const value = common.isObject(sibling) ? sibling[propName] : null
+				const item = propTypeRule._getItem(value, propName, sibling, event)
+
+				if (item && !common.isEmpty(value)) {
+					if (common.isObject(item)) {
+						for (const key in item) {
+							error = this._validProps(key, item, value, event, [...pathPropNames, key])
+							if (error) break
+						}
+					} else if (Array.isArray(item)) {
+						const arryItems = this._makeArrayItems(value, item)
+
+						//array all value
+						for (const i in value) {
+							error = this._validProps(i, arryItems, value, event, [...pathPropNames, i])
+							if (error) break
+						}
+					}
+				}
+			}
+		}
+
+		return error
+	}
+
+	/**
+	 * recursive call function
+	 */
+	_validValidates (propName, rules, sibling, event, pathPropNames = []) {
+		let error = ''
+		const propTypeRule = this._getRule(rules[propName])
+
+		if (propTypeRule) {
+			error = propTypeRule._validValidateRules(propName, sibling, event, {
+				...this._getEtcOption(),
+				pathPropNames
+			})
+			
+			//When a rule item exists inside validateRule
+			if (!error && propTypeRule._props.item) {
+				const value = common.isObject(sibling) ? sibling[propName] : null
+				const item = propTypeRule._getItem(value, propName, sibling, event)
+
+				if (item && !common.isEmpty(value)) {
+					if (common.isObject(item)) {
+						for (const key in item) {
+							error = this._validValidates(key, item, value, event, [...pathPropNames, key])
+							if (error) break
+						}
+					} else if (Array.isArray(item)) {
+						const arryItems = this._makeArrayItems(value, item)
+
+						//array all value
+						for (const i in value) {
+							error = this._validValidates(i, arryItems, value, event, [...pathPropNames, i])
+							if (error) break
+						}
+					}
+				}
+			}
+		}
+
+		return error
+	}
+
+	_getRule (propTypeRule) {
+		let result = null
+
+		if (propTypeRule) {
+			if (propTypeRule._isRule) {
+				result = propTypeRule
+			} else if (common.isObject(propTypeRule) || Array.isArray(propTypeRule)) {
+				//Object and Array create default PropTypes
+				const rule = Array.isArray(propTypeRule) ? PropTypes.array.default([]) : PropTypes.object.default({})
+
+				if (!common.isEmpty(propTypeRule)) {
+					rule.item(propTypeRule)
+				}
+
+				result = rule
+			}
+		}
+
+		return result
+	}
+
+	_makeArrayItems (values, items) {
+		const result = []
+		const itemLength = items.length
+
+		for (const i in values) {
+			result.push(items[i % itemLength])
+		}
+
+		return result
+	}
+
+	_getEtcOption () {
+		let isTrim = !!_globalOptions.trim
+		let pathPropNameType = _globalOptions.pathPropNameType
+		let ignoreFirstPathPropNames = _globalOptions.ignoreFirstPathPropNames || []
+
+		if (!common.isEmpty(this._options.trim)) {
+			isTrim = !!this._options.trim
+		}
+
+		if (!common.isEmpty(this._options.pathPropNameType)) {
+			pathPropNameType = this._options.pathPropNameType
+		}
+
+		if (Array.isArray(this._options.ignoreFirstPathPropNames)) {
+			ignoreFirstPathPropNames = this._options.ignoreFirstPathPropNames
+		}
+
+		return {
+			isTrim,
+			pathPropNameType,
+			ignoreFirstPathPropNames
+		}
+	}
 
 	_parseEvent (event = {}) {
 		/**
@@ -169,8 +376,8 @@ class Middleware {
 			try {
 				if (typeof this._options.bodyParser === 'function') {
 					this._options.bodyParser(event)
-				} else if (typeof globalOptions.bodyParser === 'function') {
-					globalOptions.bodyParser(event)
+				} else if (typeof _globalOptions.bodyParser === 'function') {
+					_globalOptions.bodyParser(event)
 				} else {
 					common.bodyParser(event)
 				}
@@ -189,44 +396,6 @@ class Middleware {
 		}
 
 		return event
-	}
-
-	// @returns {Object}	{ rule, options }
-	_getPropTypeRule (propTypeRuleData) {
-		const result = {
-			rule: {},
-			options: {}
-		}
-		
-		if (propTypeRuleData && common.isObject(propTypeRuleData)) {
-			if (propTypeRuleData._isRule) {
-				result.rule = propTypeRuleData
-			} else {
-				for (const key in propTypeRuleData) {
-					if (key === 'propType') {
-						if (propTypeRuleData.propType._isRule) {
-							result.rule = propTypeRuleData.propType
-						}
-					} else {
-						result.options[key] = propTypeRuleData[key]
-					}
-				}
-			}
-		}
-
-		return result
-	}
-
-	_trim (val, propTypeRuleOptions = {}) {
-		let isTrim = !!globalOptions.trim
-
-		if (!common.isEmpty(propTypeRuleOptions.trim)) {
-			isTrim = propTypeRuleOptions.trim
-		} else if (!common.isEmpty(this._options.trim)) {
-			isTrim = this._options.trim
-		}
-
-		return isTrim ? val.trim() : val
 	}
 }
 

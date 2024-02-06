@@ -3,6 +3,9 @@
 		"eslint:recommended",
 		"plugin:node/recommended"
 	],
+	"parserOptions": {
+		"ecmaVersion": 2020
+	},
 	"rules": {
 		"node/no-missing-require": "off",
 		"node/no-extraneous-require": "off",

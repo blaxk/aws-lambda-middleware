@@ -127,10 +127,7 @@ exports.handler = new Middleware({
   queryStringParameters: {
     username: PropTypes.string.isRequired,
     //Apply trim to each parameter (highest priority)
-    age: {
-        propType: PropTypes.integer,
-        trim: false
-    }
+    age: PropTypes.integer.option({ trim: false })
   }
 })
 ```
@@ -226,14 +223,14 @@ Parameter PropTypes validater
 
 ### Support Types
 
-| Type | Description |
-| --- | --- |
-| string | String |
-| number | Number or Numberic string |
-| integer | Integer or Integeric string |
-| bool | Boolean or Boolean string |
-| array | Array, isRequired = array.length > 0 |
-| object | Object, isRequired = Object.length > 0 |
+| Type | Description | Modify |
+| --- | --- | --- |
+| string | String | Y |
+| number | Number or Numberic string | Y |
+| integer | Integer or Integeric string | Y |
+| bool | Boolean or Boolean string | Y |
+| array | Array, required = array.length > 0 | N |
+| object | Object, required = object.length > 0 | N |
 <br/>
 
 ```js
@@ -247,7 +244,7 @@ exports.handler = new Middleware().add({
     //Type + Set the value that is replaced when the request value is empty
     photos: PropTypes.array.default([]),
     //The value returned by the function can be set as the default value.
-    startTime: PropTypes.number.default(event => Date.now())
+    startTime: PropTypes.number.default((sibling, event) => Date.now())
   }
 })
 ```
@@ -281,10 +278,6 @@ PropTypes.addRules({
             return typeof value === 'number'
           }
         },
-        //Valid function to check if it is required
-        validRequired: (value) => {
-          return !isNaN(value)
-        },
         //A function that converts the value of Paramers when it is incorrectly converted to a string. (Set only when necessary)
         convert: (value) => {
           if (typeof value === 'string') {
@@ -292,6 +285,10 @@ PropTypes.addRules({
           } else {
             return value
           }
+        },
+        //Valid function to check if it is required
+        validRequired: (value) => {
+          return !isNaN(value)
         }
     })
   },
@@ -302,10 +299,10 @@ PropTypes.addRules({
         validType: (value, isDefaultValue) => {
           return ...
         },
-        validRequired: (value) => {
+        convert: (value) => {
           return ...
         },
-        convert: (value) => {
+        validRequired: (value) => {
           return ...
         }
     })
@@ -316,11 +313,15 @@ PropTypes.addRules({
 &nbsp;
 
 ## Node Version Compatibility
-Node.js ^8.3.0
+Node.js ^12.0.0
 
 &nbsp;
 
 ## Changelog
+
+#### 1.0.1
+- Fixed deprecated RegExp
+- Added validate function
 
 #### 0.9.1
 - Added trim option
