@@ -226,12 +226,7 @@ PropTypeRule.prototype = {
 		let error = ''
 
 		if (typeof this._props.item === 'function') {
-			try {
-				item = this._props.item(this._getSibling(propName, sibling), event)
-			} catch (err) {
-				error = `item setting error, ${err?.message}`
-				common.error(err)
-			}
+			item = this._props.item(this._getSibling(propName, sibling), event)
 
 			if (common.isEmpty(item)) {
 				error = `An empty value cannot be entered in ${this._props.type}.item!`
@@ -295,12 +290,12 @@ PropTypeRule.prototype = {
 	},
 
 	_trim (value, etcOptions) {
-		let isTrim = !!etcOptions.trim
+		let isTrim = !!etcOptions.isTrim
 
-		if (!common.isEmpty(etcOptions.trim)) {
+		if (!common.isEmpty(this._props.trim)) {
 			isTrim = !!this._props.trim
 		}
-
+		
 		return isTrim ? value.trim() : value
 	},
 
@@ -308,14 +303,14 @@ PropTypeRule.prototype = {
 		let result = propName
 
 		if (Array.isArray(etcOption.pathPropNames) && etcOption.pathPropNames.length) {
-			if (etcOption.ignoreFirstPathPropNames?.length && etcOption.ignoreFirstPathPropNames.includes(etcOption.pathPropNames[0])) {
+			if (etcOption.ignoreFirstPathPropNames?.length && etcOption.ignoreFirstPathPropNames.includes(etcOption.pathPropNames[0]) && etcOption.pathPropNames.length > 1) {
 				etcOption.pathPropNames.shift()
 			}
 
 			if (etcOption.pathPropNameType === 'full') {
 				result = etcOption.pathPropNames.join('.')
 			} else if (etcOption.pathPropNameType === 'simple') {
-				result = etcOption.pathPropNames.slice(-2).join('.')
+				result = etcOption.pathPropNames.slice(-3).join('.')
 			}
 		}
 

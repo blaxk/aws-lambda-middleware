@@ -28,7 +28,7 @@ ValidateRule.addRule = function (key, rule) {
 		this._validate[key] = {
 			valid: _rules[key].valid,
 			message: _rules[key].message,
-			option: common.isEmpty(option, true) ? {} : option
+			option: option
 		}
 
 		return this
@@ -110,20 +110,37 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 					//{ valid, message, option }
 					const rule = this._validate[key]
 
-					if (typeof rule.valid === 'function' && !rule.valid(value, rule.option, this._getSibling(propName, sibling), event)) {
-						return this._errorMessage(this._getPropName(propName, etcOption), value, rule)
+					if (typeof rule.valid === 'function') {
+						const gsibling = this._getSibling(propName, sibling)
+						const option = this._getOption(rule, value, gsibling, event)
+
+						if (!rule.valid(value, option, gsibling, event)) {
+							return this._errorMessage(this._getPropName(propName, etcOption), value, rule.message, option)
+						}
 					}
 				}
 			}
 		}
 	},
 
-	_errorMessage (propName, value, rule) {
+	_getOption (rule, value, sibling, event) {
+		let result = undefined
+
+		if (typeof rule.option === 'function') {
+			result = rule.option(value, sibling, event)
+		} else {
+			result = rule.option
+		}
+
+		return result
+	},
+
+	_errorMessage (propName, value, message, option) {
 		let result = ''
 
-		if (rule.message) {
-			const rowOpt = common.isObject(rule.option) ? rule.option : { option: Array.isArray(rule.option) ? rule.option.join(', ') : rule.option }
-			result = Message.toMessage(rule.message, { propName, value, ...rowOpt })
+		if (message) {
+			const rowOpt = common.isObject(option) ? option : { option: Array.isArray(option) ? option.join(', ') : option }
+			result = Message.toMessage(message, { propName, value, ...rowOpt })
 		}
 
 		return result || Message.getMessage('validate-default-invalid', { propName, value })

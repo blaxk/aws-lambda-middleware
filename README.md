@@ -7,7 +7,11 @@
 You can simply apply Middleware in Lambda.       
 Clean code split is possible, and it includes a simple and extensible Parameter PropTypes validater.  
 It is implemented as lightly as possible to reduce the burden when running Lambda.   
-> Lambda Payload 2.0 supported.
+
+> **v1.0 added features**   
+> A Validate function that is easy to expand and use has been added, and deep data of arrays and objects can now be processed.   
+> 
+> It is compatible even in environments other than lambda. (node express etc.)    
 
 &nbsp;
 
@@ -20,14 +24,19 @@ npm i aws-lambda-middleware
 
 ## Quick setting
 ```js
-const { Middleware, PropTypes } = require('aws-lambda-middleware')
+const { Middleware, Prop } = require('aws-lambda-middleware')
 
 
 exports.handler = new Middleware().add({
   queryStringParameters: {
-      username: PropTypes.string.isRequired,
-      age: PropTypes.integer,
-      photos: PropTypes.array.default([])
+      username: Prop.string.required(),
+      age: Prop.integer,
+      friends: [
+        {
+          name: Prop.string.length({ max: 20 }),
+          gender: Prop.string.or(['male', 'female'])
+        }
+      ]
   }
 }).add(async (event, context, prevData) => {
   const query = event.queryStringParameters
@@ -46,303 +55,35 @@ exports.handler = new Middleware().add({
 &nbsp;
 
 ## Options
-You can set global options and cluster options.   
-Setting priority is `globalOption < clusterOption < callbackResult`   
+You can set global options and cluster options.  
+> You can set options such as `trim`.   
 
-### callbackData: *{Object}*	
-> Common data applied during callback
-
-```js
-const { Middleware, PropTypes } = require('aws-lambda-middleware')
-
-Middleware.globalOption({
-  callbackData: {
-    headers: { 'Access-Control-Allow-Origin': '*' }
-  }
-})
-```
-
-### bodyParser: *{Function}*	
-> Common event.body parser   
-
-Currently, event.body parser supports `Content-Type` : `application/json`, `application/x-www-form-urlencoded`.    
-The query string parser supports the following formats (application/x-www-form-urlencoded):
-```
-'foo=1&foo=&foo=3&name=jim&profile[age]=20'
-'foo[]=1&foo[]=&foo[]=3&name=jim&profile[age]=20'
-'foo[2]=3&foo[1]=&foo[0]=1&name=jim&profile[age]=20'
-'foo[2]=3&foo[1]=&foo[0]=1&name=jim&profile[age]=20'
-
-//only parse up to 2 depth
-//return { foo: [ '1', '', '3' ], name: 'jim', profile: { age: '20' } }
-```  
-If you want to use another type of body parser, you can apply it at this point.
-
-```js
-const { Middleware, PropTypes, common } = require('aws-lambda-middleware')
-const qs = require('qs')
-
-Middleware.globalOption({
-  bodyParser: (event = {}) => {
-    const contentType = common.getHeader(event, 'Content-Type')
-    
-    if (/application\/x-www-form-urlencoded/i.test(contentType)) {
-        event.body = qs.parse(event.body)
-    }
-  }
-})
-```
-
-Cluster option can be applied to each middleware.
-```js
-const { Middleware, PropTypes } = require('aws-lambda-middleware')
-
-exports.handler = new Middleware({
-  callbackData: {
-    headers: { 'Access-Control-Allow-Origin': '*' }
-  },
-  bodyParser: (event = {}) => {
-    //code
-  },
-  trim: true
-})
-```
-
-### trim: *{Boolean}*	
-> When the Trim option is set, whitespaces are removed from both ends of the parameter string.   
-
-The trim option can be applied in three forms.
-```js
-const { Middleware, PropTypes } = require('aws-lambda-middleware')
-
-//Apply trim to all parameters for which PropType is set
-Middleware.globalOption({
-  trim: true
-})
-
-//Trim option is applied per handler function
-exports.handler = new Middleware({
-  trim: true
-}).add({
-  queryStringParameters: {
-    username: PropTypes.string.isRequired,
-    //Apply trim to each parameter (highest priority)
-    age: PropTypes.integer.option({ trim: false })
-  }
-})
-```
-
-&nbsp;
+[📖 Options detail docs](docs/OPTIONS.md)
 
 ## Middleware
+You can simply apply Middleware in Lambda.   
 
-### Middleware
-> constructor
-
-| Param | Type | Description |
-| --- | --- | --- |
-| clusterOption | *Object* | middleware options |
-
-### add(handler) : *{Middleware}*
-> Add Flow handler & ProType rules
-
-| Param | Type | Description |
-| --- | --- | --- |
-| handler | *Function* | @param *{Object}* `event`	Lambda event (converted data type)<br>@param *{Object}* `context`	Lambda context<br>@param *{Object}* `prevData`	Previous handler return data|
-| handler | *Object* | PropTypes rules |
-<br/>
-
-```js
-exports.handler = new Middleware().add(async (event, context, prevData) => {
-  if (event.source === 'serverless-plugin-warmup') {
-    //If Promise.reject() is returned, execute Lambda handler callback(null, rejectValue) without executing next handler
-    return Promise.reject('Lambda is warm!')
-  }
-}).add({
-  //PropTypes do not need to be added as a first flow
-  body: {
-    username: PropTypes.string.isRequired
-  }
-}).add(async (event, context, prevData) => {
-  //code
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-        message: 'success'
-    })
-  }
-})
-```
-
-
-#### Example
-
-```js
-exports.handler = new Middleware().add({
-  queryStringParameters: {
-    age: PropTypes.integer.isRequired
-  },
-  pathParameters: {
-    groupId: PropTypes.integer.isRequired
-  }
-}).add(async (event, context, prevData) => {
-  const query = event.queryStringParameters
-
-  if (query.age > 20) {
-    return {
-        myName: 'jone'
-    }
-  } else {
-    return Promise.reject({
-        statusCode: 404,
-        body: JSON.stringify({
-        message: 'not found'
-        })
-    })
-  }
-}).add(async (event, context, prevData) => {
-  const pathParam = event.pathParameters
-
-  console.log(prevData.myName) // 'jone'
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-        message: 'success'
-    })
-  }
-})
-```
-
-&nbsp;
+[📖 Middleware detail docs](docs/MIDDLEWEAR.md)
 
 ## PropTypes
+Checks and corrects the data types of request parameters.    
+> `PropTypes` and `Prop` are the same object.   
 
-Parameter PropTypes validater   
+[📖 PropTypes detail docs](docs/PROP_TYPES.md)
 
-### Support Types
+## Validate
+It only verifies the validity of the request parameter value.   
+> You can use it by adding custom rules.   
 
-| Type | Description | Modify |
-| --- | --- | --- |
-| string | String | Y |
-| number | Number or Numberic string | Y |
-| integer | Integer or Integeric string | Y |
-| bool | Boolean or Boolean string | Y |
-| array | Array, required = array.length > 0 | N |
-| object | Object, required = object.length > 0 | N |
-<br/>
-
-```js
-exports.handler = new Middleware().add({
-  //Validate child property of Lambda event (queryStringParameters, body, pathParameters ...)
-  queryStringParameters: {
-    //Type + Required
-    username: PropTypes.string.isRequired,
-    //Only Type (Do not check when there is empty value)
-    age: PropTypes.integer,
-    //Type + Set the value that is replaced when the request value is empty
-    photos: PropTypes.array.default([]),
-    //The value returned by the function can be set as the default value.
-    startTime: PropTypes.number.default((sibling, event) => Date.now())
-  }
-})
-```
-
-### addRules(rules)
-> In addition to the basic rules, new rules can be added.   
-> Adding with the same type name overrides the existing rule.   
-> This setting is applied globally.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| rules | *Object* | - |
-<br/>
-
-```js
-const { Middleware, PropTypes } = require('aws-lambda-middleware')
-
-PropTypes.addRules({
-  //It overrides the existing string rule.
-  get number () {
-    return PropTypes.makeRule({
-        /**
-         * Valid function to check data type
-         * @param {*}		value
-         * @param {Boolean}	isDefaultValue	 Returns true when validating the value type set as the default.
-         * */
-        validType: (value, isDefaultValue) => {
-          if (!isDefaultValue && typeof value === 'string') {
-            return /^-*[0-9]*[\.]*[0-9]+$/.test(value) && !/^0[0-9]+/.test(value) && !/^-0[0-9]+/.test(value) && !(value.length === 1 && value === '-')
-          } else {
-            return typeof value === 'number'
-          }
-        },
-        //A function that converts the value of Paramers when it is incorrectly converted to a string. (Set only when necessary)
-        convert: (value) => {
-          if (typeof value === 'string') {
-            return Number(value)
-          } else {
-            return value
-          }
-        },
-        //Valid function to check if it is required
-        validRequired: (value) => {
-          return !isNaN(value)
-        }
-    })
-  },
-
-  //Multiple settings are possible at once
-  get string () {
-    return PropTypes.makeRule({ 
-        validType: (value, isDefaultValue) => {
-          return ...
-        },
-        convert: (value) => {
-          return ...
-        },
-        validRequired: (value) => {
-          return ...
-        }
-    })
-  }
-})
-```
+[📖 Validate detail docs](docs/VALIDATE.md)
 
 &nbsp;
 
-## Node Version Compatibility
-Node.js ^12.0.0
+The rules added to PropTypes and Validate are written in one line and used.
+
+![code](https://github.com/blaxk/aws-lambda-middleware/assets/16889775/519de528-3cf3-4c70-9695-c9c1f72e81ee)
 
 &nbsp;
 
-## Changelog
-
-#### 1.0.1
-- Fixed deprecated RegExp
-- Added validate function
-
-#### 0.9.1
-- Added trim option
-- Fixed a bug where "convert" was not executed when applying PropTypes.*.default
-
-#### 0.8.4
-- PropTypes.*.default, Added ability to set the value returned from a method as a default value.
-- Validate value type set as default
-- Fixed a bug PropTypes.addRules
-- body parser improvements
-
-#### 0.7.1
-- Added PropTypes.*.default method
-- Added PropTypes.object
-
-#### 0.6.1
-- Lambda Payload 2.0 support
-- Added Lambda error log
-
-#### 0.5.3
-- Fixed a bug PropTypes.boo.isRequired
-
-#### 0.5.2
-- Added and modify body parser options
+## Upgrading from v0.9 to v1.0
+...

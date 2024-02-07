@@ -1,30 +1,20 @@
 const { Middleware, PropTypes, Prop, Validate } = require('../index')
 
+Middleware.globalOption({
+	// pathPropNameType: 'simple',
+	ignoreFirstPathPropNames: ['body', 'queryStringParameters', 'pathParameters']
+})
 
-/**
-{
-	body: {
-		serviceType: 1,
-		product: {
-			productId: 1,
-			images: ['aaa.jpg'],
-			options: [
-				{
-					optionId: 2,
-					images: []
-				}
-			]
-		}
-	}
-}
- */
-const handler = new Middleware({
+
+
+const middleware = new Middleware({
 	trim: true
 }).add({
 	body: {
-		title: Prop.string.option({ trim: false }).length({ max: 10 }),
-		username: Prop.string.required((sibling) => !sibling.title),
+		title: Prop.string.length({ max: 5 }),
+		username: Prop.string.required((sibling, event) => !sibling.title),
 		stores: Prop.array.default([]),
+		
 		//object - default
 		productDefault: Prop.object.required().item({
 			productId: Prop.integer.required(),
@@ -36,32 +26,58 @@ const handler = new Middleware({
 			])
 		}),
 
-		//object - simple
-		productSimple: {
-			productId: Prop.integer.required(),
-			images: [Prop.string],
-			options: [{
-				optionId: Prop.integer.required((sibling) => sibling.serviceType == 1)
-			}]
-		},
+		// //object - simple
+		// productSimple: {
+		// 	productId: Prop.integer.required(),
+		// 	images: [Prop.string],
+		// 	options: [{
+		// 		optionType: Prop.string,
+		// 		optionId: Prop.integer.required((sibling, event) => !!sibling.optionType)
+		// 	}]
+		// },
 
-		//Return item dynamically
-		productSimple3: Prop.object.required().item((sibling) => (sibling.serviceType == 1 ? {
-			productId: Prop.integer.required(),
-			images: [Prop.string]
-		} : {
-			productId: Prop.integer.required(),
-			images: [Prop.string]
-		}))
+		// //Return dynamically item
+		// productSimple3: Prop.object.required().item((sibling, event) => (sibling.optionType ? {
+		// 	productId: Prop.integer.required(),
+		// 	images: [Prop.string]
+		// } : {
+		// 	productId: Prop.integer.required(),
+		// 	images: [Prop.string]
+		// }))
 	},
-	queryStringParameters: {
+	queryStringParameters: Prop.object.item({
 		storeId: Prop.integer
-	}
-}).valid({
-	body: {
-		title: ' aaa test'
+	})
+}).add(async (event, context, prevData) => {
+	console.log('==> event:', event)
+
+	return {
+		statusCode: 200,
+		body: JSON.stringify({
+			message: 'success'
+		})
 	}
 })
 
-console.log('===== Result ===>', handler)
+//middleware(event, context, callback)
+middleware({
+	body: {
+		test: 1,
+		title: ' title   ',
+		productDefault: {
+			productId: 11,
+			options: [
+				{
+					optionId: 1
+				}
+			]
+		}
+	},
+	queryStringParameters: {
+
+	}
+}, {}, (err, callbackData) => {
+	console.log('==err:', err)
+	// console.log('==callbackData:', callbackData)
+})
 

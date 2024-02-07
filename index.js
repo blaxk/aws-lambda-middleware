@@ -5,6 +5,13 @@ const Message = require('./src/Message')
 const common = require('./src/common')
 
 
+/** ========== Default global option ========== */
+
+Middleware.globalOption({
+	//single, simple, full
+	pathPropNameType: 'simple'
+})
+
 /** ========== PropTypes addRules ========== */
 
 PropTypes.addRules({
@@ -159,8 +166,57 @@ Validate.addRules({
 			return opt.includes(value)
 		},
 		message: `'{{propName}}' can only have values {{option}}`
+	},
+
+	/**
+	 * @param {String} 		value 
+	 */
+	digit: {
+		valid: (value, option, sibling, event) => {
+			return /^[0-9]+$/.test(value)
+		},
+		message: `'{{propName}}' can only be the string 0-9`
+	},
+
+	/**
+	 * @param {String} 		value 
+	 * @param {String} 		option 	upper, lower
+	 */
+	alphabet: {
+		valid: (value, option, sibling, event) => {
+			let reg = /^[a-z]+$/i
+
+			if (option === 'upper') {
+				reg = /^[A-Z]+$/
+			} else if (option === 'lower') {
+				reg = /^[a-z]+$/
+			}
+
+			return reg.test(value)
+		},
+		message: `'{{propName}}' can only contain {{#unless option}}{{option}} {{/unless}}alphabets`
+	},
+
+	/**
+	 * alphabets + 0-9
+	 * @param {String} 		value 
+	 * @param {String} 		option 	upper, lower
+	 */
+	alphaDigit: {
+		valid: (value, option, sibling, event) => {
+			let reg = /^[a-z0-9]+$/i
+
+			if (option === 'upper') {
+				reg = /^[A-Z0-9]+$/
+			} else if (option === 'lower') {
+				reg = /^[a-z0-9]+$/
+			}
+
+			return reg.test(value)
+		},
+		message: `'{{propName}}' can only contain {{#unless option}}{{option}} {{/unless}}alphabets and 0-9`
 	}
-}, true)
+})
 
 
 exports.common = common

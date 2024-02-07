@@ -1,10 +1,7 @@
 const PropTypes = require('./PropTypes')
 const common = require('./common')
 
-const _globalOptions = {
-	//single, simple, full
-	pathPropNameType: 'simple'
-}
+const _globalOptions = {}
 
 
 class Middleware {
@@ -246,7 +243,7 @@ class Middleware {
 			
 			//When a rule item exists inside propTypeRule
 			if (!error && propTypeRule._props.item) {
-				const value = common.isObject(sibling) ? sibling[propName] : null
+				const value = (common.isObject(sibling) || Array.isArray(sibling)) ? sibling[propName] : null
 				const item = propTypeRule._getItem(value, propName, sibling, event)
 
 				if (item && !common.isEmpty(value)) {
@@ -286,7 +283,7 @@ class Middleware {
 			
 			//When a rule item exists inside validateRule
 			if (!error && propTypeRule._props.item) {
-				const value = common.isObject(sibling) ? sibling[propName] : null
+				const value = (common.isObject(sibling) || Array.isArray(sibling)) ? sibling[propName] : null
 				const item = propTypeRule._getItem(value, propName, sibling, event)
 
 				if (item && !common.isEmpty(value)) {
@@ -319,7 +316,8 @@ class Middleware {
 				result = propTypeRule
 			} else if (common.isObject(propTypeRule) || Array.isArray(propTypeRule)) {
 				//Object and Array create default PropTypes
-				const rule = Array.isArray(propTypeRule) ? PropTypes.array.default([]) : PropTypes.object.default({})
+				//"required" must be present to maintain compatibility with versions prior to v1.0
+				const rule = Array.isArray(propTypeRule) ? PropTypes.array.required() : PropTypes.object.required()
 
 				if (!common.isEmpty(propTypeRule)) {
 					rule.item(propTypeRule)
