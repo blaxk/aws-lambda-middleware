@@ -8,7 +8,7 @@ You can simply apply Middleware in Lambda. 
 Clean code split is possible, and it includes a simple and extensible Parameter PropTypes validater.  
 It is implemented as lightly as possible to reduce the burden when running Lambda.   
 
-> **v1.0 added features**   
+> **🚀 v1.0 added features**   
 > A Validate function that is easy to expand and use has been added, and deep data of arrays and objects can now be processed.   
 > 
 > It is compatible even in environments other than lambda. (node express etc.)    
@@ -85,5 +85,22 @@ The rules added to PropTypes and Validate are written in one line and used.
 
 &nbsp;
 
-## Upgrading from v0.9 to v1.0
-...
+## ⚠️ Upgrading from v0.9 to v1.0
+
+1. `object` and `array` are designated as reserved prop name, so the rule cannot be overwritten.     
+[⚠️ Reserved prop names](docs/RESERVED_PROPS.md)
+
+2. trim settings for each PropTypes use `.option()`.
+```js
+{
+  param: Prop.string.option({ trim: false })
+}
+```
+
+3. The abbreviated `Prop` variable can be used instead of the `PropTypes` variable.
+> `PropTypes` can still be used as well.   
+
+4. `.isRequired` has been replaced by `.required()`.
+> `.isRequired` is also compatible, but not recommended.    
+
+5. 

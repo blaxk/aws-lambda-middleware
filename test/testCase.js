@@ -16,25 +16,26 @@ const middleware = new Middleware({
 		stores: Prop.array.default([]),
 		
 		//object - default
-		productDefault: Prop.object.required().item({
+		// productDefault: Prop.object.required().item({
+		// 	productId: Prop.integer.required(),
+		// 	images: Prop.array.default([]),
+		// 	options: Prop.array.item([
+		// 		Prop.object.required().item({
+		// 			optionId: Prop.integer.required()
+		// 		})
+		// 	])
+		// }),
+
+		//object - simple
+		productDefault: {
 			productId: Prop.integer.required(),
 			images: Prop.array.default([]),
-			options: Prop.array.item([
-				Prop.object.required().item({
+			options: [
+				{
 					optionId: Prop.integer.required()
-				})
-			])
-		}),
-
-		// //object - simple
-		// productSimple: {
-		// 	productId: Prop.integer.required(),
-		// 	images: [Prop.string],
-		// 	options: [{
-		// 		optionType: Prop.string,
-		// 		optionId: Prop.integer.required((sibling, event) => !!sibling.optionType)
-		// 	}]
-		// },
+				}
+			]
+		},
 
 		// //Return dynamically item
 		// productSimple3: Prop.object.required().item((sibling, event) => (sibling.optionType ? {
@@ -45,7 +46,7 @@ const middleware = new Middleware({
 		// 	images: [Prop.string]
 		// }))
 	},
-	queryStringParameters: Prop.object.item({
+	queryStringParameters: Prop.object.default({}).item({
 		storeId: Prop.integer
 	})
 }).add(async (event, context, prevData) => {
@@ -68,14 +69,14 @@ middleware({
 			productId: 11,
 			options: [
 				{
-					optionId: 1
+					optionId: 111
 				}
 			]
 		}
 	},
-	queryStringParameters: {
+	// queryStringParameters: {
 
-	}
+	// }
 }, {}, (err, callbackData) => {
 	console.log('==err:', err)
 	// console.log('==callbackData:', callbackData)

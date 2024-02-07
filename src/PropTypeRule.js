@@ -39,7 +39,6 @@ PropTypeRule.prototype = {
 	/**
 	 * Required
 	 * !Replaced by the "ValidateRule.required" function, which allows you to set various options.
-	 * @returns {PropTypeRule}
 	 */
 	get isRequired () {
 		if (this._props.default) {
@@ -47,7 +46,7 @@ PropTypeRule.prototype = {
 		} else {
 			this._props.required = true
 		}
-
+		
 		return this
 	},
 

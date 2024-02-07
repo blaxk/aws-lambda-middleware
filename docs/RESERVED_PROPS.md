@@ -1,4 +1,4 @@
-# Reserved prop name
+# Reserved prop names
 
 A rule cannot be added with that prop name. 
 

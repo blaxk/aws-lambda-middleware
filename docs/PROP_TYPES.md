@@ -20,15 +20,23 @@ Checks and corrects the data types of request parameters.
 exports.handler = new Middleware().add({
   //Validate child property of Lambda event (queryStringParameters, body, pathParameters ...)
   queryStringParameters: {
+
     //Type + Required
     username: Prop.string.required(),
+
     //⚠️ "isRequired" is a feature for backwards compatibility.
     //Replaced by the "required()" function, which allows you to set various options.
     friends: Prop.array.isRequired,
-    //Only Type (Do not check when there is empty value)
+
+    //Only Type (not checked if there is no value)
     age: Prop.integer,
+
     //The value returned by the function can be set as the default value.
     startTime: Prop.integer.default((sibling, event) => Date.now()),
+
+    //Since it is not a required item, length is checked only when there is a value.
+    info: Prop.string.length({ max: 20 }),
+    
     //Validation of deep data is possible using "item()"
     photos: Prop.array.required().item([
       Prop.string.required()
