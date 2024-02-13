@@ -16,10 +16,30 @@ const middleware = new Middleware({
 			Prop.string.required(),
 			Prop.bool.required()
 		],
+		anyList: [
+			[
+				Prop.string,
+				Prop.integer
+			],
+			{
+				id: Prop.integer.required()
+			}
+		],
+		list: [
+			{
+				id: Prop.integer.required()
+			},
+			{
+				id: Prop.string.required()
+			},
+			[
+				Prop.string
+			]
+		],
 		product: {
 			productId: Prop.integer.required(),
 			photos: Prop.array.item([
-				Prop.string.or((v, s, e) => e.body.storeId === 23 ? ['aa', 'bb'] : ['cc', 'dd'])
+				Prop.string.or(({ v, s, e }) => e.body.storeId === 23 ? ['aa', 'bb'] : ['cc', 'dd'])
 			]).length({ max: 2 })
 		}
 	}
@@ -29,6 +49,17 @@ console.log('===> result.valid:', middleware.valid({
 	title: 'aaa',
 	body: {
 		storeId: '24',
+		anyList: [
+			[`1`, 2],
+			{
+				id: 123
+			}
+		],
+		list: [
+			{ id: 20 },
+			{ id: `aaa` },
+			[]
+		],
 		images: ['3', true, 'qq'],
 		product: {
 			productId: 1,

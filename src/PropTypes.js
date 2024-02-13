@@ -21,7 +21,7 @@ const PropTypes = {
 				return Array.isArray(value)
 			},
 			validRequired: (value) => {
-				return value.length > 0
+				return !common.isEmpty(value)
 			}
 		})
 	},

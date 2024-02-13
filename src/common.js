@@ -8,7 +8,7 @@ const Common = {
 	]),
 
 	isObject: (value) => {
-		return Object.prototype.toString.call(value) === '[object Object]' && !(value && value._isRule)
+		return Object.prototype.toString.call(value) === '[object Object]' && !value?._isRule
 	},
 
 	isNumber: (value) => {

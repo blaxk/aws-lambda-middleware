@@ -67,6 +67,11 @@ exports.handler = new Middleware().add({
 
     //Sets child elements of Array or Object.
     //If there is one rule in array.item and three values in the request parameter array, the three values are verified based on one rule.
+    /**
+     * Sets child elements of Array or Object.
+     * - If there is one rule in array.item and three values in the request parameter array, the three values are verified based on one rule.
+     * - If two rules are set, the first rule is applied to the third parameter.
+     */
     imagesA: Prop.array.required().item([
       Prop.string.required()
     ]),
@@ -104,6 +109,7 @@ exports.handler = new Middleware().add({
 > In addition to the basic rules, new rules can be added.   
 > Adding with the same type name overrides the existing rule.   
 > This setting is applied globally.   
+> Executed in the order `validType > validRequired > convert`.   
 
 [⚠️ Rules that cannot be added to PropTypes](RESERVED_PROPS.md)
 
@@ -130,6 +136,10 @@ PropTypes.addRules({
             return typeof value === 'number'
           }
         },
+        //Valid function to check if it is required
+        validRequired: (value) => {
+          return !isNaN(value)
+        },
         //A function that converts the value of Paramers when it is incorrectly converted to a string. (Set only when necessary)
         convert: (value) => {
           if (typeof value === 'string') {
@@ -137,10 +147,6 @@ PropTypes.addRules({
           } else {
             return value
           }
-        },
-        //Valid function to check if it is required
-        validRequired: (value) => {
-          return !isNaN(value)
         }
     })
   },
@@ -151,10 +157,10 @@ PropTypes.addRules({
         validType: (value, isDefaultValue) => {
           return ...
         },
-        convert: (value) => {
+        validRequired: (value) => {
           return ...
         },
-        validRequired: (value) => {
+        convert: (value) => {
           return ...
         }
     })

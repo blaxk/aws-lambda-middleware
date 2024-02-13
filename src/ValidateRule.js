@@ -94,16 +94,12 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 	 * @returns {String}	error message
 	 */
 	_validValidateRules (propName, sibling, event, etcOption = {}) {
-		let value = this._toValue(propName, sibling)
+		const value = this._toValue(propName, sibling)
 
 		//check required function
 		if (this._validate.required === true || (typeof this._validate.required === 'function' && this._validate.required(this._getFuncParams(propName, sibling, event)))) {
-			if (typeof this._props.validRequired === 'function') {
-				if (common.isEmpty(value)) {
-					return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
-				} else if (!this._props.validRequired(value)) {
-					return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
-				}
+			if (typeof this._props.validRequired === 'function' && !this._props.validRequired(value)) {
+				return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
 			}
 		}
 
