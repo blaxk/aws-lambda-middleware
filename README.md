@@ -90,17 +90,59 @@ The rules added to PropTypes and Validate are written in one line and used.
 1. `object` and `array` are designated as reserved prop name, so the rule cannot be overwritten.     
 [⚠️ Reserved prop names](docs/RESERVED_PROPS.md)
 
-2. trim settings for each PropTypes use `.option()`.
+2. trim settings for each PropTypes use `.option()`.   
 ```js
 {
   param: Prop.string.option({ trim: false })
 }
 ```
 
-3. The abbreviated `Prop` variable can be used instead of the `PropTypes` variable.
+3. The abbreviated `Prop` variable can be used instead of the `PropTypes` variable.   
 > `PropTypes` can still be used as well.   
 
-4. `.isRequired` has been replaced by `.required()`.
+4. `.isRequired` has been replaced by `.required()`.   
 > `.isRequired` is also compatible, but not recommended.    
 
-5. 
+5. When dynamically setting the default value of PropTypes, the parameter format has been changed to `named parameters` format.   
+
+**~ v0.9**   
+```js
+Prop.*.default((event) => {})
+```
+
+**v1.0 ~**   
+```js
+Prop.*.default(({ event }) => {})
+```
+
+[📖 PropTypes > Support methods](docs/PROP_TYPES.md?tab=readme-ov-file#support-methods)
+
+
+6. The interpretation of Object and Array notations has been changed from `validate only when value exists` to `required validation`.   
+> When setting the body as shown below, the returned status depends, so check the `item` document in `PropTypes > Support methods`.   
+
+[📖 PropTypes > Support methods](docs/PROP_TYPES.md?tab=readme-ov-file#support-methods)
+
+```js
+exports.handler = new Middleware().add({
+  body: {
+    myId: Prop.string
+  }
+})
+```
+
+**~ v0.9**   
+> Even if the body of the request parameter is an empty Object or has no value, `status = 200` is returned.   
+
+**v1.0 ~**   
+> If the body of the request parameter is an empty Object or has no value, `status = 400` is returned.   
+> In order to `verify only when there is a value` for the body, you must also set PropTypes on the body.
+
+```js
+exports.handler = new Middleware().add({
+  body: Prop.object.item({
+    myId: Prop.string
+  })
+})
+```
+

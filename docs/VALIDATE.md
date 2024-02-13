@@ -8,13 +8,13 @@ It only verifies the validity of the request parameter value.
 
 | Rule | Supported | Options | Description |
 | --- | --- | --- | --- |
-| length | *string*, *array*, *object* | value or { min, max } | Set the allowable length |
-| min | *number*, *integer* | value | Minimum |
-| max | *number*, *integer* | value | Maximum |
-| or | *number*, *integer*, *string*, *bool* | [val, val2,...] | data set in the option array is allowed |
+| length | *string*, *array*, *object* | value or { min, max }, function | Set the allowable length |
+| min | *number*, *integer* | value, function | Minimum |
+| max | *number*, *integer* | value, function | Maximum |
+| or | *number*, *integer*, *string*, *bool* | [val, val2,...], function | data set in the option array is allowed |
 | digit | *string* |  | strings 0-9 are allowed |
-| alphabet | *string* | lower, upper | alphabets are allowed |
-| alphaDigit | *string* | lower, upper | alphabets + 0-9 allowed |
+| alphabet | *string* | `lower`, `upper`, function | alphabets are allowed |
+| alphaDigit | *string* | `lower`, `upper`, function | alphabets + 0-9 allowed |
 | valid | * | function | Dynamically check validity |
 
 
@@ -52,10 +52,14 @@ exports.handler = new Middleware().add({
     param: Prop.string.alphaDigit('upper'),
 
     //You can dynamically verify validity using the "valid" function.
-    param: Prop.string.valid((value, sibling, event) => value === 'male'),
+    param: Prop.string.valid(({ v }) => v === 'male'),
 
-    //All validate options can be set dynamically.
-    param: Prop.string.or((value, sibling, event) => sibling.storeType === 'market' ? ['S', 'L'] : ['S', 'M', 'L'])
+    //🚀All validate options can be set dynamically.
+    param: Prop.string.or(({ value, sibling, event, propName }) => sibling.storeType === 'market' ? ['S', 'L'] : ['S', 'M', 'L']),
+    //You can use parameters more briefly.
+    param: Prop.string.or(({ v, s, e, p }) => s.storeType === 'market' ? ['S', 'L'] : ['S', 'M', 'L']),
+    //You can simplify the code by indicating only the necessary parameters.
+    param: Prop.string.or(({ s }) => s.storeType === 'market' ? ['S', 'L'] : ['S', 'M', 'L'])
   }
 })
 ```

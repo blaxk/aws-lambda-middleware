@@ -42,7 +42,7 @@ PropTypeRule.prototype = {
 	 */
 	get isRequired () {
 		if (this._props.default) {
-			common.error(`'isRequired' and 'default' cannot be set at the same time.`)
+			throw new Error(`'isRequired' and 'default' cannot be set at the same time.`)
 		} else {
 			this._props.required = true
 		}
@@ -57,7 +57,7 @@ PropTypeRule.prototype = {
 	 */
 	default (val) {
 		if (this._props.required) {
-			common.error(`'isRequired' and 'default' cannot be set at the same time.`)
+			throw new Error(`'default' and 'isRequired' cannot be set at the same time.`)
 		} else {
 			this._props.default = val
 		}
@@ -196,7 +196,7 @@ PropTypeRule.prototype = {
 		if (this._props.default) {
 			if (typeof this._props.default === 'function') {
 				try {
-					value = this._props.default(this._getSibling(propName, sibling), event)
+					value = this._props.default(this._getFuncParams(propName, sibling, event))
 				} catch (err) {
 					common.error(err)
 					error = Message.getMessage('error-default-func', { propName, value })
@@ -220,12 +220,12 @@ PropTypeRule.prototype = {
 	},
 
 	//@returns {Object}
-	_getItem (value, propName, sibling, event) {
+	_getItem (propName, sibling, event) {
 		let item = null
 		let error = ''
 
 		if (typeof this._props.item === 'function') {
-			item = this._props.item(this._getSibling(propName, sibling), event)
+			item = this._props.item(this._getFuncParams(propName, sibling, event))
 
 			if (common.isEmpty(item)) {
 				error = `An empty value cannot be entered in ${this._props.type}.item!`
@@ -258,34 +258,20 @@ PropTypeRule.prototype = {
 		return result
 	},
 
-	/**
-	 * Remove self from sibling and return
-	 * @param {String} propName 
-	 * @param {Object} originSibling 
-	 * @returns 
-	 */
-	_getSibling (propName, originSibling) {
-		let result = {}
+	//functional parameter
+	_getFuncParams (propName, sibling, event) {
+		const value = this._toValue(propName, sibling)
 
-		if (!common.isEmpty(originSibling)) {
-			if (common.isObject(originSibling)) {
-				for (const key in originSibling) {
-					if (propName != key) {
-						result[key] = originSibling[key]
-					}
-				}
-			} else if (Array.isArray(originSibling)) {
-				result = []
-
-				for (const idx in originSibling) {
-					if (propName != idx) {
-						result.push(originSibling[idx])
-					}
-				}
-			}
+		return {
+			v: value,
+			s: sibling,
+			e: event,
+			p: propName,
+			value,
+			sibling,
+			event,
+			propName
 		}
-
-		return result
 	},
 
 	_trim (value, etcOptions) {

@@ -12,7 +12,7 @@ const middleware = new Middleware({
 }).add({
 	body: {
 		title: Prop.string.length({ max: 5 }),
-		username: Prop.string.required((sibling, event) => !sibling.title),
+		username: Prop.string.required(({ s }) => !s.title),
 		stores: Prop.array.default([]),
 		
 		//object - default
@@ -38,7 +38,7 @@ const middleware = new Middleware({
 		},
 
 		// //Return dynamically item
-		// productSimple3: Prop.object.required().item((sibling, event) => (sibling.optionType ? {
+		// productSimple3: Prop.object.required().item(({ s }) => (s.optionType ? {
 		// 	productId: Prop.integer.required(),
 		// 	images: [Prop.string]
 		// } : {

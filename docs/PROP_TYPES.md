@@ -31,37 +31,74 @@ exports.handler = new Middleware().add({
     //Only Type (not checked if there is no value)
     age: Prop.integer,
 
-    //The value returned by the function can be set as the default value.
-    startTime: Prop.integer.default((sibling, event) => Date.now()),
+    //You can set a default value when there is no value in the request parameter.
+    startDate: Prop.integer.default('2024-01-01'),
 
-    //Since it is not a required item, length is checked only when there is a value.
+    //Since it is not a required item, length is checked only when there is a value. (Validate)
     info: Prop.string.length({ max: 20 }),
     
     //Validation of deep data is possible using "item()"
-    photos: Prop.array.required().item([
-      Prop.string.required()
-    ]),
+    //For detailed usage, see "item()" below.
+    imagesB: [
+			Prop.string.required()
+		]
+  }
+})
+```
 
-    //✨ param "imagesA" and "imagesB" are the same settings.
+## Support methods
+> The methods below can set values both statically and dynamically.   
+> Parameters use the `named parameters` format.   
+>   @param *{\*}* `value`     
+>   @param *{Object}* `sibling` Sibling elements at the same level   
+>   @param *{Object}* `event` Lambda event object   
+>   @param *{String}* `propName`
+
+| Type | Type | Description |
+| --- | --- | --- |
+| default | *Function*| You can set a default value when there is no value in the request parameter. |
+| item | *Function*| Sets child elements of Array or Object. |
+
+```js
+exports.handler = new Middleware().add({
+  body: {
+    //You can set a default value when there is no value in the request parameter
+    startTime: Prop.integer.default(10),
+
+    //Sets child elements of Array or Object.
+    //If there is one rule in array.item and three values in the request parameter array, the three values are verified based on one rule.
     imagesA: Prop.array.required().item([
       Prop.string.required()
     ]),
     
+    //✨ param "imagesA" and "imagesB" are the same settings.
     //"item()" can be replaced with Array and Object expressions for brevity.
     imagesB: [
 			Prop.string.required()
 		],
-    
+
     //Array and Object allow deep data validation with more concise expressions.
     friends: [
       {
         name: Prop.string.length({ max: 20 }),
         gender: Prop.string.or(['male', 'female'])
       }
-    ]
+    ],
+
+
+    //You can change the default value dynamically.
+    startTime: Prop.integer.default(({ value, sibling, event, propName }) => Date.now()),
+
+    //You can use parameters more briefly.
+    startDate: Prop.string.default(({ v, s, e, p }) => s.startTime ? '2024-01-01'),
+
+    //You can simplify the code by indicating only the necessary parameters.
+    startDate: Prop.string.default(({ s }) => s.startTime ? '2024-01-01')
   }
 })
 ```
+
+&nbsp;
 
 ### addRules(rules)   
 > In addition to the basic rules, new rules can be added.   

@@ -31,7 +31,11 @@ ValidateRule.addRule = function (key, rule) {
 			option: option
 		}
 
-		return this
+		if (this._props.required) {
+			throw new Error(`'isRequired.${key}' is not a function that can be used.`)
+		} else {
+			return this
+		}
 	}
 }
 
@@ -47,8 +51,10 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 	 * @returns {ValidateRule}
 	 */
 	required (func) {
-		if (this._props.default) {
-			common.error(`'isRequired' and 'default' cannot be set at the same time`)
+		if (this._props.required) {
+			throw new Error(`'isRequired.required' is not a function that can be used.`)
+		} else if (this._props.default) {
+			throw new Error(`'isRequired' and 'default' cannot be set at the same time`)
 		} else {
 			if (typeof func === 'function') {
 				this._validate.required = func
@@ -68,7 +74,9 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 	 * @returns {ValidateRule}
 	 */
 	valid (func) {
-		if (typeof func === 'function') {
+		if (this._props.required) {
+			throw new Error(`'isRequired.valid' is not a function that can be used.`)
+		} else if (typeof func === 'function') {
 			this._validate.valid = func
 		}
 
@@ -89,7 +97,7 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 		let value = this._toValue(propName, sibling)
 
 		//check required function
-		if (this._validate.required === true || (typeof this._validate.required === 'function' && this._validate.required(this._getSibling(propName, sibling), event))) {
+		if (this._validate.required === true || (typeof this._validate.required === 'function' && this._validate.required(this._getFuncParams(propName, sibling, event)))) {
 			if (typeof this._props.validRequired === 'function') {
 				if (common.isEmpty(value)) {
 					return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
@@ -100,7 +108,7 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 		}
 
 		if (!common.isEmpty(value)) {
-			if (typeof this._validate.valid === 'function' && !this._validate.valid(value, this._getSibling(propName, sibling), event)) {
+			if (typeof this._validate.valid === 'function' && !this._validate.valid(this._getFuncParams(propName, sibling, event))) {
 				return Message.getMessage('validate-invalid-func', { propName: this._getPropName(propName, etcOption), value })
 			}
 
@@ -111,10 +119,9 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 					const rule = this._validate[key]
 
 					if (typeof rule.valid === 'function') {
-						const gsibling = this._getSibling(propName, sibling)
-						const option = this._getOption(rule, value, gsibling, event)
+						const option = this._getOption(rule, propName, sibling, event)
 
-						if (!rule.valid(value, option, gsibling, event)) {
+						if (!rule.valid(value, option, sibling, event)) {
 							return this._errorMessage(this._getPropName(propName, etcOption), value, rule.message, option)
 						}
 					}
@@ -123,11 +130,11 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 		}
 	},
 
-	_getOption (rule, value, sibling, event) {
+	_getOption (rule, propName, sibling, event) {
 		let result = undefined
 
 		if (typeof rule.option === 'function') {
-			result = rule.option(value, sibling, event)
+			result = rule.option(this._getFuncParams(propName, sibling, event))
 		} else {
 			result = rule.option
 		}

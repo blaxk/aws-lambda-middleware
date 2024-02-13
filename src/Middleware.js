@@ -243,8 +243,8 @@ class Middleware {
 			
 			//When a rule item exists inside propTypeRule
 			if (!error && propTypeRule._props.item) {
-				const value = (common.isObject(sibling) || Array.isArray(sibling)) ? sibling[propName] : null
-				const item = propTypeRule._getItem(value, propName, sibling, event)
+				const value = propTypeRule._toValue(propName, sibling)
+				const item = propTypeRule._getItem(propName, sibling, event)
 
 				if (item && !common.isEmpty(value)) {
 					if (common.isObject(item)) {
@@ -283,8 +283,8 @@ class Middleware {
 			
 			//When a rule item exists inside validateRule
 			if (!error && propTypeRule._props.item) {
-				const value = (common.isObject(sibling) || Array.isArray(sibling)) ? sibling[propName] : null
-				const item = propTypeRule._getItem(value, propName, sibling, event)
+				const value = propTypeRule._toValue(propName, sibling)
+				const item = propTypeRule._getItem(propName, sibling, event)
 
 				if (item && !common.isEmpty(value)) {
 					if (common.isObject(item)) {
