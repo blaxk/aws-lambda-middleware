@@ -89,6 +89,7 @@ The rules added to PropTypes and Validate are written in one line and used.
 
 ### 1. `object` and `array` expressions
 > `object` and `array` are designated as reserved prop name, so the rule cannot be overwritten.     
+
 [⚠️ Reserved prop names](docs/RESERVED_PROPS.md)
 
 ### 2. Option settings for each PropTypes
@@ -122,8 +123,8 @@ Prop.*.default(({ event }) => {})
 [📖 PropTypes > Support methods](docs/PROP_TYPES.md?tab=readme-ov-file#support-methods)
 
 
-### 6. Object and Array Notation
-> The interpretation of Object and Array notations has been changed from `validate only when value exists` to `required validation`.   
+### 6. Interpreting `object` and `array` expressions
+> The interpretation of Object and Array expressions has been changed from `validate only when value exists` to `required validation`.   
 > When setting the body as shown below, the returned status depends, so check the `item` document in `PropTypes > Support methods`.   
 
 [📖 PropTypes > Support methods](docs/PROP_TYPES.md?tab=readme-ov-file#support-methods)
