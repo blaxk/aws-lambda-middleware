@@ -81,8 +81,14 @@ It only verifies the validity of the request parameter value.
 
 The rules added to PropTypes and Validate are written in one line and used.
 
-<img src="https://github.com/blaxk/aws-lambda-middleware/assets/16889775/519de528-3cf3-4c70-9695-c9c1f72e81ee" alt="code" style="max-width: 300px;">
+![code](https://github.com/blaxk/aws-lambda-middleware/assets/16889775/519de528-3cf3-4c70-9695-c9c1f72e81ee | width=350)
 
+## Message
+Error messages can be organized into templates.   
+
+[📖 Message detail docs](docs/MESSAGE.md)
+
+&nbsp;
 &nbsp;
 
 ## ⚠️ Upgrading from v0.9 to v1.0
