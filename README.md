@@ -87,23 +87,27 @@ The rules added to PropTypes and Validate are written in one line and used.
 
 ## ⚠️ Upgrading from v0.9 to v1.0
 
-1. `object` and `array` are designated as reserved prop name, so the rule cannot be overwritten.     
+### 1. `object` and `array` expressions
+> `object` and `array` are designated as reserved prop name, so the rule cannot be overwritten.     
 [⚠️ Reserved prop names](docs/RESERVED_PROPS.md)
 
-2. trim settings for each PropTypes use `.option()`.   
+### 2. Option settings for each PropTypes
+> trim settings for each PropTypes use `.option()`.   
 ```js
 {
   param: Prop.string.option({ trim: false })
 }
 ```
 
-3. The abbreviated `Prop` variable can be used instead of the `PropTypes` variable.   
+### 3. `PropTypes` and `Prop`
+> The abbreviated `Prop` can be used instead of the `PropTypes`.     
 > `PropTypes` can still be used as well.   
 
-4. `.isRequired` has been replaced by `.required()`.   
+### 4. `.isRequired` has been replaced by `.required()`.   
 > `.isRequired` is also compatible, but not recommended.    
 
-5. When dynamically setting the default value of PropTypes, the parameter format has been changed to `named parameters` format.   
+### 5. Parameter type of PropTypes.*.default() function
+> When dynamically setting the default value of PropTypes, the parameter type has been changed to `named parameters`.   
 
 **~ v0.9**   
 ```js
@@ -118,7 +122,8 @@ Prop.*.default(({ event }) => {})
 [📖 PropTypes > Support methods](docs/PROP_TYPES.md?tab=readme-ov-file#support-methods)
 
 
-6. The interpretation of Object and Array notations has been changed from `validate only when value exists` to `required validation`.   
+### 6. Object and Array Notation
+> The interpretation of Object and Array notations has been changed from `validate only when value exists` to `required validation`.   
 > When setting the body as shown below, the returned status depends, so check the `item` document in `PropTypes > Support methods`.   
 
 [📖 PropTypes > Support methods](docs/PROP_TYPES.md?tab=readme-ov-file#support-methods)
@@ -136,7 +141,7 @@ exports.handler = new Middleware().add({
 
 **v1.0 ~**   
 > If the body of the request parameter is an empty Object or has no value, `status = 400` is returned.   
-> In order to `verify only when there is a value` for the body, you must also set PropTypes on the body.
+> In order to `validate only when value exists` for the body, you must also set PropTypes on the body.
 
 ```js
 exports.handler = new Middleware().add({
