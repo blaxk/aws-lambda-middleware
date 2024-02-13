@@ -40,8 +40,8 @@ exports.handler = new Middleware().add({
     //Validation of deep data is possible using "item()"
     //For detailed usage, see "item()" below.
     imagesB: [
-			Prop.string.required()
-		]
+      Prop.string.required()
+    ]
   }
 })
 ```
@@ -79,8 +79,8 @@ exports.handler = new Middleware().add({
     //✨ param "imagesA" and "imagesB" are the same settings.
     //"item()" can be replaced with Array and Object expressions for brevity.
     imagesB: [
-			Prop.string.required()
-		],
+      Prop.string.required()
+    ],
 
     //Array and Object allow deep data validation with more concise expressions.
     friends: [
