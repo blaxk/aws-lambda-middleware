@@ -86,23 +86,23 @@ const { Validate } = require('aws-lambda-middleware')
 
 Validate.addRules({
   /**
-	 * @param {Number | Int} 	value 
-	 * @param {Object | *} 	option 
-	 * @param {Object} 	sibling 
-	 * @param {Object} 	event   lambda event object 
-	 */
-	min: {
-		valid: (value, option, sibling, event) => {
-			const val = common.isNumber(value) ? value : 0
-			return val >= option
-		},
+   * @param {Number | Int} 	value 
+   * @param {Object | *} 	option 
+   * @param {Object} 	sibling 
+   * @param {Object} 	event   lambda event object 
+   */
+  min: {
+    valid: (value, option, sibling, event) => {
+      const val = common.isNumber(value) ? value : 0
+      return val >= option
+    },
     //error message template
-		message: `'{{propName}}' can be from {{min}}`
-	},
+    message: `'{{propName}}' can be from {{min}}`
+  },
 
   //It is also possible to change just the message in an existing rule.
   max: {
-		message: `'{{propName}}' can be up to {{max}}`
-	}
+    message: `'{{propName}}' can be up to {{max}}`
+  }
 })
 ```

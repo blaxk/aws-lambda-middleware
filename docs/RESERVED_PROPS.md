@@ -30,11 +30,11 @@ PropTypes.addRules({
 
 //🚫 Because a rule with the name "date" has already been added in PropTypes, "date" cannot be added to the Validate rule.
 Validate.addRules({
-	date: {
-		valid: (value, option, sibling, event) => {
-			return ...
-		},
-		message: `...`
-	}
+  date: {
+    valid: (value, option, sibling, event) => {
+      return ...
+    },
+    message: `...`
+  }
 })
 ```
