@@ -110,12 +110,12 @@ The abbreviated `Prop` can be used instead of the `PropTypes`.
 ### 5. Parameter type of PropTypes.*.default() function
 When dynamically setting the default value of PropTypes, the parameter type has been changed to `named parameters`.   
 
-**~ v0.9**   
+**v0.9**   
 ```js
 Prop.*.default((event) => {})
 ```
 
-**v1.0 ~**   
+**v1.0**   
 ```js
 Prop.*.default(({ event }) => {})
 ```
