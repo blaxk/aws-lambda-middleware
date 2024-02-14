@@ -45,7 +45,21 @@ const middleware = new Middleware({
 	}
 })
 
-console.log('===> result.valid:', middleware.valid({
+console.log('===> result.valid1:', middleware.valid({
+	title: 'aaa',
+	body: {
+		storeId: '24',
+		anyList: [
+			[`1`, 2],
+			{
+				id: 123
+			}
+		]
+	}
+}))
+
+
+console.log('===> result.valid2:', middleware.valid({
 	title: 'aaa',
 	body: {
 		storeId: '24',
