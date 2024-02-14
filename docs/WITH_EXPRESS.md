@@ -26,7 +26,7 @@ exports.validator = (rules) => {
   return async (req, res, next) => {
     const { status, message } = middlewear.valid(req)
 
-    if (['invalid', 'error'].inculde(status)) {
+    if (['invalid', 'error'].includes(status)) {
       //Return data on error
       res.status(400).json({
         message
