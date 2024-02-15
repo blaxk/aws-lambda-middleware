@@ -76,9 +76,9 @@ PropTypeRule.prototype = {
 
 		if (common.isEmpty(elements)) {
 			if (elements) {
-				error = `'An empty ${this._props.type} cannot be placed in ${this._props.type}.item`
+				error = `An empty ${this._props.type} cannot be placed in ${this._props.type}.item`
 			} else {
-				error = `'An empty value cannot be entered in ${this._props.type}.item`
+				error = `An empty value cannot be entered in ${this._props.type}.item`
 			}
 		} else {
 			const type = common.type(elements, true)

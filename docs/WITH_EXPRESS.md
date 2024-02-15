@@ -9,7 +9,8 @@ Introducing a method that can be applied to the Express framework.
 const { Middleware, Prop, Validate } = require('aws-lambda-middleware')
 
 
-//Add custom validation rule
+//Add rules or set various options here.
+/*
 Validate.addRules({
   min: {
     valid: (value, option, sibling, event) => {
@@ -18,6 +19,7 @@ Validate.addRules({
     message: `'{{propName}}' can be from {{min}}`
   }
 })
+*/
 
 
 exports.validator = (rules) => {
