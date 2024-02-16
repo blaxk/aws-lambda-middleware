@@ -55,9 +55,10 @@ app.get('/api/v1/users', validator({
     age: Prop.integer,
     limit: Prop.integer.default(10).max(50)
   }
-}), (req, res, next) => {
+}), async (req, res, next) => {
   const query = req.query
 
   //code
+  
 })
 ```
