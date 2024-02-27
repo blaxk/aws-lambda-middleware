@@ -141,7 +141,7 @@ Validate.addRules({
 			const val = common.isNumber(value) ? value : 0
 			return val >= option
 		},
-		message: `'{{propName}}' can be from {{min}}`
+		message: `'{{propName}}' can be from {{option}}`
 	},
 
 	/**
@@ -153,7 +153,7 @@ Validate.addRules({
 			const val = common.isNumber(value) ? value : 0
 			return val <= option
 		},
-		message: `'{{propName}}' can be up to {{max}}`
+		message: `'{{propName}}' can be up to {{option}}`
 	},
 
 	/**

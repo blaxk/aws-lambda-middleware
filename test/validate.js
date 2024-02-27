@@ -10,6 +10,7 @@ const middleware = new Middleware({
 	trim: true
 }).add({
 	title: Prop.string.required().length({ max: 10 }),
+	age: Prop.integer.max(10),
 	body: {
 		storeId: Prop.integer.isRequired,
 		images: [
@@ -47,6 +48,7 @@ const middleware = new Middleware({
 
 console.log('===> result.valid1:', middleware.valid({
 	title: 'aaa',
+	age: 20,
 	body: {
 		storeId: '24',
 		anyList: [
