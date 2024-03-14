@@ -11,6 +11,7 @@ const middleware = new Middleware({
 	trim: true
 }).add({
 	body: {
+		bool: Prop.bool.default(false),
 		title: Prop.string.length({ max: 5 }),
 		username: Prop.string.required(({ s }) => !s.title),
 		stores: Prop.array.default([]),
