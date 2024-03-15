@@ -56,6 +56,7 @@ exports.handler = new Middleware().add({
 
 | Type | Type | Description |
 | --- | --- | --- |
+| required | *Function*| Required prop |
 | default | *Function*| You can set a default value when there is no value in the request parameter. |
 | item | *Function*| Sets child elements of Array or Object. |
 
