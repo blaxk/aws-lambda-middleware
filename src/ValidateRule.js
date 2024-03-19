@@ -53,7 +53,7 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 	required (func) {
 		if (this._props.required) {
 			throw new Error(`'isRequired.required' is not a function that can be used.`)
-		} else if (!common.isEmpty(this._props.default, true)) {
+		} else if (this._props.default !== undefined) {
 			throw new Error(`'isRequired' and 'default' cannot be set at the same time`)
 		} else {
 			if (typeof func === 'function') {

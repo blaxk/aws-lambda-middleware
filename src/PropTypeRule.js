@@ -41,7 +41,7 @@ PropTypeRule.prototype = {
 	 * !Replaced by the "ValidateRule.required" function, which allows you to set various options.
 	 */
 	get isRequired () {
-		if (!common.isEmpty(this._props.default, true)) {
+		if (this._props.default !== undefined) {
 			throw new Error(`'isRequired' and 'default' cannot be set at the same time.`)
 		} else {
 			this._props.required = true
@@ -193,7 +193,7 @@ PropTypeRule.prototype = {
 		let value
 		let error = ''
 		
-		if (!common.isEmpty(this._props.default, true)) {
+		if (this._props.default !== undefined) {
 			if (typeof this._props.default === 'function') {
 				try {
 					value = this._props.default(this._getFuncParams(propName, sibling, event))
@@ -206,7 +206,7 @@ PropTypeRule.prototype = {
 			}
 
 			//valid type
-			if (!common.isEmpty(value, true) && typeof this._props.validType === 'function' && !this._props.validType(value, true)) {
+			if (value !== undefined && typeof this._props.validType === 'function' && !this._props.validType(value, true)) {
 				error = Message.getMessage('error-default-value', { propName, value })
 			} else {
 				value = common.clone(value)
