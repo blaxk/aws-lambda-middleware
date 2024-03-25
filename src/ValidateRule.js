@@ -98,8 +98,12 @@ ValidateRule.prototype = Object.assign(PropTypeRule.prototype, {
 
 		//check required function
 		if (this._validate.required === true || (typeof this._validate.required === 'function' && this._validate.required(this._getFuncParams(propName, sibling, event)))) {
-			if (typeof this._props.validRequired === 'function' && !this._props.validRequired(value)) {
-				return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
+			if (this._props.validType(value)) {
+				if (typeof this._props.validRequired === 'function' && !this._props.validRequired(value)) {
+					return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
+				}
+			} else {
+				return Message.getMessage('param-invalid-type', { propName: this._getPropName(propName, etcOption), value })
 			}
 		}
 

@@ -9,6 +9,7 @@ Middleware.globalOption({
 const middleware = new Middleware({
 	trim: true
 }).add({
+	bookName: Prop.string.required(),
 	title: Prop.string.required().length({ max: 10 }),
 	age: Prop.integer.max(10),
 	body: {
