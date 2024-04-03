@@ -63,7 +63,7 @@ You can set global options and cluster options.
 ## Middleware
 You can simply apply Middleware in Lambda.   
 
-📖 [Middleware detail docs](docs/MIDDLEWEAR.md)
+📖 [Middleware detail docs](docs/MIDDLEWARE.md)
 
 ## PropTypes
 Checks and corrects the data types of request parameters.    

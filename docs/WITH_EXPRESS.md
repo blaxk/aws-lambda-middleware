@@ -4,7 +4,7 @@ Introducing a method that can be applied to the Express framework.
 
 &nbsp;
 
-**middlewear.js**
+**middleware.js**
 ```js
 const { Middleware, Prop, Validate } = require('aws-lambda-middleware')
 
@@ -23,10 +23,10 @@ Validate.addRules({
 
 
 exports.validator = (rules) => {
-  const middlewear = new Middleware({ trim: true }).add(rules)
+  const middleware = new Middleware({ trim: true }).add(rules)
 
   return async (req, res, next) => {
-    const { status, message } = middlewear.valid(req)
+    const { status, message } = middleware.valid(req)
 
     if (['invalid', 'error'].includes(status)) {
       //Return data on error
@@ -44,7 +44,7 @@ exports.Prop = Prop
 
 **app.js**
 ```js
-const { validator, Prop } = require('./middlewear')
+const { validator, Prop } = require('./middleware')
 const express = require('express')
 const app = express()
 
