@@ -164,11 +164,12 @@ class Middleware {
 						break
 					}
 				} catch (error) {
-					common.error(error)
-
 					if (isLambdaHandler) {
+						common.error(error?.message || error?.stack)
 						return error
 					} else {
+						common.error(error)
+
 						if (common.isError(error)) {
 							callback(error)
 						} else {
