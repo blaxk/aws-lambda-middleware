@@ -4,7 +4,11 @@ Middleware.globalOption({
 	// pathPropNameType: 'simple',
 	ignoreFirstPathPropNames: ['body', 'queryStringParameters', 'pathParameters'],
 	bodyParser: (event) => {
-		event.aaa = 'aaa'
+		try {
+			event.aaa = 'aaa'
+		} catch (error) {
+			console.error(error)
+		}
 	}
 })
 
@@ -74,6 +78,7 @@ const middleware = new Middleware({
 	
 }).handler(async (event, context, prevData) => {
 	console.log('==> event:', event)
+	
 })
 
 middleware({

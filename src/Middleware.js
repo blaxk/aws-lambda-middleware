@@ -151,26 +151,33 @@ class Middleware {
 
 					//last flow callback
 					if (flowLength - 1 == i) {
-						if (!isLambdaHandler) callback(null, common.isObject(prevData) ? {
-							..._globalOptions.callbackData,
-							...this._options.callbackData,
-							...prevData
-						} : prevData)
+						if (isLambdaHandler) {
+							return prevData
+						} else {
+							callback(null, common.isObject(prevData) ? {
+								..._globalOptions.callbackData,
+								...this._options.callbackData,
+								...prevData
+							} : prevData)
+						}
 
 						break
 					}
 				} catch (error) {
-					if (common.isError(error)) {
-						common.error(error)
+					common.error(error)
 
-						if (!isLambdaHandler) callback(error)
+					if (isLambdaHandler) {
+						return prevData
 					} else {
-						common.info(error)
-						if (!isLambdaHandler) callback(null, common.isObject(error) ? {
-							..._globalOptions.callbackData,
-							...this._options.callbackData,
-							...error
-						} : error)
+						if (common.isError(error)) {
+							callback(error)
+						} else {
+							callback(null, common.isObject(error) ? {
+								..._globalOptions.callbackData,
+								...this._options.callbackData,
+								...error
+							} : error)
+						}
 					}
 
 					break
