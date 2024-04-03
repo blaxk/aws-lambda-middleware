@@ -35,6 +35,7 @@ class Middleware {
 		this._handler = this._handler.bind(this)
 		this._handler.add = this.add.bind(this)
 		this._handler.valid = this.valid.bind(this)
+		this._handler.handler = this.handler.bind(this)
 	}
 
 	/** ========== Public Methods ========== */
