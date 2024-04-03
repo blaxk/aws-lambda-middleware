@@ -167,7 +167,7 @@ class Middleware {
 					common.error(error)
 
 					if (isLambdaHandler) {
-						return prevData
+						return error
 					} else {
 						if (common.isError(error)) {
 							callback(error)
