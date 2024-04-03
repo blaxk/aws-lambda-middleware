@@ -121,7 +121,7 @@ class Middleware {
 	
 	//lambda handler
 	async _handler (event = {}, context = {}, callback) {
-		const evt = this._parseEvent(event)
+		const evt = await this._parseEvent(event)
 		const flowLength = this._flows.length
 		let prevData = {}
 
@@ -366,35 +366,46 @@ class Middleware {
 		}
 	}
 
-	_parseEvent (event = {}) {
+	async _parseEvent (event = {}) {
 		/**
 		 * Lambda payload 1.0 = event.requestContext.httpMethod
 		 * Lambda payload 2.0 = event.requestContext.http.method
 		 */
-		if (event.requestContext && (event.requestContext.httpMethod || (event.requestContext.http && event.requestContext.http.method))) {
-			try {
-				if (typeof this._options.bodyParser === 'function') {
-					this._options.bodyParser(event)
-				} else if (typeof _globalOptions.bodyParser === 'function') {
-					_globalOptions.bodyParser(event)
-				} else {
-					common.bodyParser(event)
-				}
-			} catch (error) {
-				event.middlewareBodyParseError = 'Request event.body parse error!'
-				common.error(error)
-			}
+		const isLambdaPayload = event.requestContext && (event.requestContext.httpMethod || (event.requestContext.http && event.requestContext.http.method))
+		const customParser = this._getCustomParser()
+		
+		try {
+			if (customParser) {
+				await customParser(event)
+			} else if (isLambdaPayload) {
+				common.bodyParser(event)
 
-			if (!event.queryStringParameters) {
-				event.queryStringParameters = {}
-			}
+				// if (!event.queryStringParameters) {
+				// 	event.queryStringParameters = {}
+				// }
 
-			if (!event.pathParameters) {
-				event.pathParameters = {}
+				// if (!event.pathParameters) {
+				// 	event.pathParameters = {}
+				// }
 			}
+		} catch (error) {
+			event.middlewareBodyParseError = 'Request event.body parse error!'
+			common.error(error)
 		}
 
 		return event
+	}
+
+	_getCustomParser () {
+		let result
+
+		if (typeof this._options.bodyParser === 'function') {
+			result = this._options.bodyParser
+		} else if (typeof _globalOptions.bodyParser === 'function') {
+			result = _globalOptions.bodyParser
+		}
+
+		return result
 	}
 }
 
