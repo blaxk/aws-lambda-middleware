@@ -146,7 +146,9 @@ PropTypeRule.prototype = {
 		//check required
 		if (this._props.required) {
 			if (typeof this._props.validType === 'function' && typeof this._props.validRequired === 'function') {
-				if (this._props.validType(value)) {
+				if (sibling && typeof sibling === 'object' && !Object.hasOwn(sibling, propName)) {
+					return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
+				} else if (this._props.validType(value)) {
 					if (!this._props.validRequired(value)) {
 						return Message.getMessage('param-required', { propName: this._getPropName(propName, etcOption), value })
 					}

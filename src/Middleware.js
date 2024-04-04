@@ -85,8 +85,8 @@ class Middleware {
 		//none, valid, invalid, error
 		let status = 'none'
 		let error = ''
-
-		if (common.isObject(data)) {
+		
+		if (['[object Object]', '[object Request]'].includes(Object.prototype.toString.call(data))) {
 			for (const i in this._flows) {
 				const flow = this._flows[i]
 
