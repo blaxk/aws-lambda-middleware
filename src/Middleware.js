@@ -86,7 +86,7 @@ class Middleware {
 		let status = 'none'
 		let error = ''
 		
-		if (['[object Object]', '[object Request]'].includes(Object.prototype.toString.call(data))) {
+		if (data && typeof data === 'object') {
 			for (const i in this._flows) {
 				const flow = this._flows[i]
 
@@ -212,7 +212,7 @@ class Middleware {
 	_validError (event, ruleGroup) {
 		let error = ''
 
-		if (common.isObject(event) && common.isObject(ruleGroup)) {
+		if (event && typeof event === 'object' && common.isObject(ruleGroup)) {
 			//propType check
 			for (const propName in ruleGroup) {
 				error = this._validProps(propName, ruleGroup, event, event, [propName])
