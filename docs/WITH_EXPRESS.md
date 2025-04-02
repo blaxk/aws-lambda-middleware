@@ -26,7 +26,11 @@ exports.validator = (rules) => {
   const middleware = new Middleware({ trim: true }).add(rules)
 
   return async (req, res, next) => {
-    const { status, message } = middleware.valid(req)
+    const { status, message } = middleware.valid({
+      query: req.query,
+			body: req.body,
+			params: req.params
+    })
 
     if (['invalid', 'error'].includes(status)) {
       //Return data on error
