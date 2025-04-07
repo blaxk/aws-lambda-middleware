@@ -26,11 +26,14 @@ exports.validator = (rules) => {
   const middleware = new Middleware({ trim: true }).add(rules)
 
   return async (req, res, next) => {
-    const { status, message } = middleware.valid({
+    //Modified to support express v5
+    const customeReqData = {
       query: req.query,
       body: req.body,
       params: req.params
-    })
+		}
+    const { status, message } = middleware.valid(customeReqData)
+    req.customeReqData = customeReqData
 
     if (['invalid', 'error'].includes(status)) {
       //Return data on error
@@ -60,7 +63,7 @@ app.get('/api/v1/users', validator({
     limit: Prop.integer.default(10).max(50)
   }
 }), async (req, res, next) => {
-  const query = req.query
+  const query = req.customeReqData.query
 
   //code
   
